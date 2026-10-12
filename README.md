@@ -1,4 +1,4 @@
-# golden-private
+# golden-convo
 
 Private landing zone for golden sessions: conversations with agents worth keeping. Captured with [`/golden`](https://github.com/smarchone/skills/tree/main/productivity/golden).
 
