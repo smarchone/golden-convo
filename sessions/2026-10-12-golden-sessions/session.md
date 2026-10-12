@@ -7,7 +7,7 @@ harness: claude-code
 harness_version: 2.1.296
 model: claude-opus-5-5
 session_id: 11d07ce6-1c9e-4a2e-b659-c5ca77dfab17
-source_path: ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/11d07ce6-1c9e-4a2e-b659-c5ca77dfab17.jsonl
+source_path: ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/11d07ce6-1c9e-4a2e-b659-c5ca77dfab17.jsonl  # best-effort; the harness may delete it
 started: 2026-10-12T01:25:34.679Z
 captured: 2026-10-12T02:19:46Z
 cwd: ~/Documents/proj/claude/spark/ideas
@@ -223,7 +223,7 @@ harness: claude-code
 harness_version: 2.x.x
 model: claude-opus-5-5
 session_id: 11d07ce6-…                    # native id, for re-fetch
-source_path: ~/.claude/projects/…/….jsonl
+source_path: ~/.claude/projects/…/….jsonl  # best-effort; the harness may delete it
 started: 2026-10-12T…
 captured: 2026-10-12T…
 cwd: ~/…/spark/ideas
