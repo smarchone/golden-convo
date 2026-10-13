@@ -42,6 +42,13 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .lede a { color:var(--dim); } .lede a:hover { color:var(--fg); }
 .mock { font:12px var(--mono); color:var(--faint); border:1px dashed var(--line); padding:8px 12px; border-radius:8px; margin:0 0 36px; }
 .eyebrow { font:600 12px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.12em; margin:0 0 14px; }
+.flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px 6px; margin:0 0 44px; font:13px/1 var(--mono); color:var(--faint); }
+.flow span, .flow a.gold { color:var(--dim); border:1px solid var(--line); border-radius:999px; padding:8px 12px; }
+.flow a.gold { color:var(--accent); border-color:var(--accent-line); background:var(--accent-soft); text-decoration:none; transition:border-color .15s; }
+.flow a.gold:hover { border-color:var(--accent); }
+.flow span.end { color:var(--white); }
+.flow a.how { color:var(--dim); margin-left:auto; text-decoration:none; }
+.flow a.how:hover { color:var(--accent); }
 
 /* index */
 .list { list-style:none; padding:0; margin:0 0 40px; display:grid; gap:14px; }
@@ -122,6 +129,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   .screen { padding:16px 14px 24px; font-size:12px; }
   .turn.golden { margin-left:-14px; padding-left:12px; }
   .title, .hint, .bar .model { display:none; }
+  .flow a.how { margin-left:0; width:100%; }
 }
 @media (prefers-reduced-motion: no-preference) { .turn:target { animation:flash 1.4s ease-out; } @keyframes flash { from { background:rgba(222,138,104,.22); } } }
 
@@ -272,7 +280,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     shown.forEach(s => (groups[monthKey(s.fm.captured)] ||= []).push(s));
     app.innerHTML = `
       <p class="hero">Conversations <em>worth keeping.</em></p>
-      <p class="lede">Sessions with agents, saved with <a href="https://smarchone.github.io/skills"><code>/golden</code></a>: the full text of every turn, plus why it mattered. Golden turns are the ones worth rereading.</p>` +
+      <p class="lede">Sessions with agents, saved with <a href="https://smarchone.github.io/skills"><code>/golden</code></a>: the full text of every turn, plus why it mattered. Golden turns are the ones worth rereading.</p>
+      <p class="flow"><span>report or panel</span>→<span>a session worth keeping</span>→<a class="gold" href="https://smarchone.github.io/skills" title="How to capture one: smarchone.github.io/skills">/golden ↗</a>→<span class="end">this library</span><a class="how" href="https://smarchone.github.io/skills">make your own →</a></p>` +
       (activeLabel ? `<p class="filter-note">${shown.length} tagged ${esc(activeLabel)} · <button data-clear>show all</button></p>` : '') +
       Object.entries(groups).map(([month, items]) => `
         <p class="eyebrow">${esc(month)}</p>
