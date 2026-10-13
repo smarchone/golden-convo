@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Conversations with agents worth keeping, captured with /golden.">
+<title>Golden Convo</title>
+<style>
+/* Layout: one reading column (860px) in the smarchone/skills look — dark terminal ground, coral accent, mono chrome.
+   Index = month-grouped cards; post = header + transcript (❯ prompts, ⏺ replies), golden turns edged in coral.
+   Single dark theme on purpose, matching smarchone.github.io/skills. */
+:root {
+  --bg:#121214; --win:#18181b; --bar:#1d1d21; --line:#2b2b30; --code:#212126; --card:#17171a;
+  --fg:#cfcdc8; --dim:#8c8a85; --faint:#5a5955; --white:#ecebe6; --accent:#de8a68; --accent-soft:rgba(222,138,104,.12);
+  --accent-line:rgba(222,138,104,.45);
+  --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans:system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing:border-box; }
+html, body { background:var(--bg); color:var(--fg); margin:0; }
+body { font:15px/1.65 var(--sans); padding-inline:16px; padding-block:56px 48px; -webkit-font-smoothing:antialiased;
+       background:radial-gradient(900px 420px at 50% -120px, rgba(222,138,104,.10), transparent 70%) no-repeat, var(--bg); }
+main.page { max-width:860px; margin:0 auto; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+
+.crumb { font:600 13px/1 var(--mono); color:var(--dim); margin:0 0 22px; letter-spacing:-.01em; text-decoration:none; display:inline-block; }
+.crumb span { color:var(--accent); }
+.crumb:hover { color:var(--fg); }
+.hero { margin:0 0 14px; font:700 clamp(34px, 7vw, 56px)/1.05 var(--sans); color:var(--white); letter-spacing:-.035em; text-wrap:balance; }
+.hero em { font-style:normal; color:var(--accent);
+           background:linear-gradient(100deg, #f0b48f, #de8a68 55%, #c96a4a); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.lede { color:var(--dim); margin:0 0 28px; max-width:62ch; }
+.lede a { color:var(--dim); } .lede a:hover { color:var(--fg); }
+.mock { font:12px var(--mono); color:var(--faint); border:1px dashed var(--line); padding:8px 12px; border-radius:8px; margin:0 0 36px; }
+.eyebrow { font:600 12px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.12em; margin:0 0 14px; }
+
+/* index */
+.list { list-style:none; padding:0; margin:0 0 40px; display:grid; gap:14px; }
+.entry { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px 20px; display:grid; gap:8px; transition:border-color .2s; min-width:0; }
+.entry:hover { border-color:#3a3a40; }
+.entry h2 { font:600 17px/1.35 var(--sans); color:var(--white); margin:0; text-wrap:balance; }
+.entry h2 a { text-decoration:none; }
+.entry h2 a:hover { color:var(--accent); }
+.why { color:var(--dim); font-size:14px; line-height:1.6; margin:0; }
+.why::before { content:"why · "; font:11px var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
+.meta { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; font:12px var(--mono); color:var(--dim); font-variant-numeric:tabular-nums; margin-top:4px; }
+.gold-count { color:var(--accent); }
+.status { color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-size:11px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; }
+.tag { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer; border:1px solid var(--line); border-radius:999px; padding:6px 10px; transition:color .15s, border-color .15s; }
+.tag:hover { color:var(--fg); border-color:var(--faint); }
+.tag[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+.filter-note { font:12px var(--mono); color:var(--dim); margin:0 0 16px; }
+.filter-note button { font:inherit; color:var(--accent); background:none; border:0; cursor:pointer; padding:0; border-bottom:1px solid var(--accent-line); }
+
+/* post */
+.post-head { margin:0 0 22px; display:grid; gap:12px; }
+.post-head h1 { margin:0; font:700 clamp(28px, 5vw, 42px)/1.1 var(--sans); color:var(--white); letter-spacing:-.03em; text-wrap:balance; }
+.post-head .why { font-size:15px; }
+.jump { display:flex; flex-wrap:wrap; align-items:center; gap:8px 6px; font:13px/1 var(--mono); color:var(--faint); }
+.jump span.lbl { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; margin-right:4px; }
+.jump a { color:var(--accent); border:1px solid var(--accent-line); background:var(--accent-soft); border-radius:999px; padding:7px 12px; text-decoration:none; }
+.jump a:hover { border-color:var(--accent); }
+
+.win { background:var(--win); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+       box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.02) inset; }
+.bar { display:flex; align-items:center; gap:12px; height:40px; padding:0 14px; background:var(--bar); border-bottom:1px solid var(--line); }
+.dots { display:flex; gap:7px; } .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
+.title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
+.screen { padding:18px 20px 26px; font:13px/1.7 var(--mono); }
+
+.turn { position:relative; scroll-margin-top:16px; }
+.turn + .turn.user { margin-top:26px; padding-top:18px; border-top:1px dashed var(--line); }
+.turn.assistant { margin-top:14px; }
+.turn-label { display:flex; gap:10px; align-items:center; font:11px/1 var(--mono); color:var(--faint); margin:0 0 8px; }
+.turn-label a { text-decoration:none; } .turn-label a:hover { color:var(--dim); }
+.golden-chip { color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
+.turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
+               background:linear-gradient(90deg, var(--accent-soft), transparent 70%); }
+.turn.golden.assistant { padding-block:10px 4px; }
+
+.prompt { color:var(--white); overflow-wrap:anywhere; }
+.prompt > :first-child::before { content:"❯ "; color:var(--dim); }
+.prompt p { margin:0 0 .5em; }
+.out { position:relative; padding-left:20px; overflow-wrap:anywhere; }
+.out::before { content:"⏺"; position:absolute; left:0; top:0; color:var(--fg); }
+.out > :first-child { margin-top:0; }
+.out p, .out ul, .out ol { margin:0 0 .9em; }
+.out ul, .out ol { padding-left:1.4em; }
+.out li { margin:.2em 0; }
+.out strong { color:var(--white); }
+.out em { color:#e6e6e6; }
+.out h1, .out h2, .out h3, .out h4 { font-size:1em; color:var(--accent); margin:1.3em 0 .4em; }
+.out h1 { color:var(--white); }
+.out code, .prompt code { background:var(--code); padding:1px 5px; border-radius:4px; }
+.out pre { background:var(--code); padding:10px 12px; border-radius:8px; overflow-x:auto; margin:0 0 .9em; line-height:1.5; }
+.out pre code { background:none; padding:0; }
+.out table { border-collapse:collapse; display:block; overflow-x:auto; margin:0 0 .9em; }
+.out th, .out td { border:1px solid var(--line); padding:5px 9px; text-align:left; vertical-align:top; min-width:8rem; }
+.out th { color:var(--white); }
+.out a { color:var(--accent); }
+.out hr { border:0; border-top:1px solid var(--line); margin:1.2em 0; }
+.out blockquote { margin:0 0 .9em; padding-left:12px; border-left:2px solid var(--faint); color:var(--dim); }
+
+.colophon { margin-top:22px; font:12px var(--mono); color:var(--faint); display:grid; grid-template-columns:max-content minmax(0, 1fr); gap:4px 16px; }
+.colophon dt { text-transform:uppercase; letter-spacing:.08em; }
+.colophon dd { margin:0; color:var(--dim); overflow-wrap:anywhere; }
+.hint { color:var(--faint); font:12px var(--mono); margin-top:28px; text-align:center; }
+
+@media (max-width:600px) {
+  body { padding-block:28px 40px; }
+  .screen { padding:16px 14px 24px; font-size:12px; }
+  .turn.golden { margin-left:-14px; padding-left:12px; }
+  .title, .hint, .bar .model { display:none; }
+}
+@media (prefers-reduced-motion: no-preference) { .turn:target { animation:flash 1.4s ease-out; } @keyframes flash { from { background:rgba(222,138,104,.22); } } }
+
+/* controls */
+.controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; }
+.controls .lbl { font:11px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.08em; margin-right:2px; }
+.controls .div { width:1px; height:20px; background:var(--line); margin:0 6px; }
+.controls button { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
+  border:1px solid var(--line); border-radius:999px; padding:8px 12px; transition:color .15s, border-color .15s; }
+.controls button:hover { color:var(--fg); border-color:var(--faint); }
+.controls button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+.view-blurb { font:12px var(--mono); color:var(--faint); margin:6px 0 0; }
+
+/* folded runs of non-golden turns */
+.fold { margin:18px 0; }
+.fold > summary { list-style:none; cursor:pointer; font:12px/1 var(--mono); color:var(--faint);
+  border:1px dashed var(--line); border-radius:8px; padding:10px 12px; display:flex; gap:10px; align-items:center; }
+.fold > summary::-webkit-details-marker { display:none; }
+.fold > summary::before { content:"▸"; color:var(--dim); transition:transform .15s; }
+.fold[open] > summary::before { transform:rotate(90deg); }
+.fold > summary:hover { color:var(--dim); border-color:var(--faint); }
+.fold[open] > summary { margin-bottom:14px; }
+.fold:first-child { margin-top:0; }
+.ctx { font:12px/1.5 var(--mono); color:var(--dim); margin:0 0 10px; padding-left:20px; overflow-wrap:anywhere; }
+.ctx b { color:var(--faint); font-weight:400; }
+.fold[open] + .turn .ctx { display:none; }
+
+/* outline (skim) */
+.outline { display:none; border:1px solid var(--line); border-radius:14px; background:var(--card); padding:16px 20px; margin:0 0 18px; }
+.outline .lbl { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
+.outline ol { margin:10px 0 0; padding-left:1.2em; display:grid; gap:4px; }
+.outline a { text-decoration:none; color:var(--fg); }
+.outline a:hover { color:var(--accent); }
+.outline .t { font:11px var(--mono); color:var(--faint); margin-left:6px; }
+
+/* Reader: same palette, proportional type at reading size, no terminal chrome */
+[data-view="reader"] .win, [data-view="skim"] .win { background:none; border:0; box-shadow:none; border-radius:0; overflow:visible; }
+[data-view="reader"] .bar, [data-view="skim"] .bar { display:none; }
+[data-view="reader"] .screen, [data-view="skim"] .screen { padding:0; font:17px/1.75 var(--sans); max-width:68ch; }
+[data-view="reader"] .out, [data-view="skim"] .out { padding-left:0; }
+[data-view="reader"] .out::before, [data-view="skim"] .out::before { display:none; }
+[data-view="reader"] .out h1, [data-view="reader"] .out h2, [data-view="skim"] .out h1, [data-view="skim"] .out h2 { font-size:1.25em; color:var(--white); letter-spacing:-.01em; }
+[data-view="reader"] .out h3, [data-view="reader"] .out h4, [data-view="skim"] .out h3, [data-view="skim"] .out h4 { font-size:1.05em; }
+[data-view="reader"] .out p, [data-view="reader"] .out ul, [data-view="reader"] .out ol,
+[data-view="skim"] .out p, [data-view="skim"] .out ul, [data-view="skim"] .out ol { margin-bottom:1.1em; }
+[data-view="reader"] .out table, [data-view="skim"] .out table { font-size:14px; line-height:1.5; }
+[data-view="reader"] .out code, [data-view="skim"] .out code { font-size:.85em; }
+[data-view="reader"] .prompt, [data-view="skim"] .prompt { font:15px/1.6 var(--mono); color:var(--dim); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+[data-view="reader"] .ctx, [data-view="skim"] .ctx { padding-left:0; }
+[data-view="reader"] .turn.golden, [data-view="skim"] .turn.golden { margin-left:0; padding-left:16px; }
+[data-view="reader"] .turn + .turn.user, [data-view="skim"] .turn + .turn.user { border-top:0; margin-top:36px; padding-top:0; }
+[data-view="reader"] .turn.assistant, [data-view="skim"] .turn.assistant { margin-top:20px; }
+
+/* Skim: only golden turns plus an outline; "Show all turns" brings the folds back */
+[data-view="skim"] .outline { display:block; }
+[data-view="skim"] .fold:not([open]) { display:none; }
+
+.status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
+
+@media (max-width:600px) {
+  .controls .div { display:none; }
+  [data-view="reader"] .screen, [data-view="skim"] .screen { font-size:16px; }
+  [data-view="reader"] .turn.golden, [data-view="skim"] .turn.golden { margin-left:0; padding-left:12px; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <a class="crumb" href="#"><span>~/</span>smarchone/golden-convo</a>
+  <div id="app"></div>
+  <p class="hint">captured with <a href="https://github.com/smarchone/skills/tree/main/productivity/golden">/golden</a> · rendered in the browser, no build</p>
+</main>
+
+<script type="application/json" id="sessions"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<script>
+(function () {
+  const REPO = 'smarchone/golden-convo', BRANCH = 'main';
+  const app = document.getElementById('app');
+  let sessions = [];
+  let activeLabel = null;
+  let showAll = false;
+
+  const VIEWS = {
+    terminal: 'The full transcript in the terminal style of the skills page.',
+    reader: 'Larger proportional type in a narrow column, without the terminal frame.',
+    skim: 'Only the golden turns, with an outline of their sections.',
+  };
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+  let view = VIEWS[store.get('gc-view')] ? store.get('gc-view') : 'terminal';
+
+  // Both turn-marker formats in the repo: "### 3 · **user:**" and "**3. user:**"
+  const TURN = /^(?:### (\d+) · \*\*(user|assistant):\*\*|\*\*(\d+)\. (user|assistant):\*\*)[ \t]*$/gm;
+
+  function parse(path, raw) {
+    const m = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+    const fm = (m && jsyaml.load(m[1])) || {};
+    const body = m ? m[2] : raw;
+    const turns = [];
+    let hit, last = null;
+    TURN.lastIndex = 0;
+    while ((hit = TURN.exec(body))) {
+      if (last) last.text = body.slice(last.end, hit.index);
+      last = { n: +(hit[1] || hit[3]), role: hit[2] || hit[4], end: TURN.lastIndex };
+      turns.push(last);
+    }
+    if (last) last.text = body.slice(last.end);
+    return { path, fm, turns, id: fm.id || path.split('/').pop().replace(/\.md$/, '') };
+  }
+
+  // index.json (written next to the sessions) lists them; the GitHub API listing only works while the repo is public.
+  async function listPaths() {
+    const idx = await fetch('index.json').catch(() => null);
+    if (idx && idx.ok) return idx.json();
+    const res = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`);
+    if (!res.ok) throw new Error(`no index.json, and the GitHub listing failed (${res.status})`);
+    return (await res.json()).tree
+      .filter(x => x.type === 'blob' && /^\d{4}-\d{2}\/[^/]+\.md$/.test(x.path)).map(x => x.path);
+  }
+
+  // Embedded data (preview) wins; otherwise list the repo's session files and fetch them from this site.
+  async function load() {
+    const emb = document.getElementById('sessions');
+    if (emb && emb.textContent.trim()) return JSON.parse(emb.textContent);
+    const paths = await listPaths();
+    return Promise.all(paths.map(p => fetch(p).then(r => r.text()).then(content => ({ path: p, content }))));
+  }
+
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const md = s => marked.parse(s, { gfm: true, breaks: false });
+  const plain = s => { const d = document.createElement('div'); d.innerHTML = md(s); return d.textContent.replace(/\s+/g, ' ').trim(); };
+  const clip = (s, n) => s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s;
+  const fmtDate = d => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const monthKey = d => new Date(d).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+
+  function tagsHtml(labels) {
+    return `<span class="tags">${(labels || []).map(l =>
+      `<button class="tag" data-label="${esc(l)}" aria-pressed="${l === activeLabel}">${esc(l)}</button>`).join('')}</span>`;
+  }
+
+  function renderIndex() {
+    const shown = sessions.filter(s => !activeLabel || (s.fm.labels || []).includes(activeLabel));
+    const groups = {};
+    shown.forEach(s => (groups[monthKey(s.fm.captured)] ||= []).push(s));
+    app.innerHTML = `
+      <p class="hero">Conversations <em>worth keeping.</em></p>
+      <p class="lede">Sessions with agents, saved with <code>/golden</code>: the full text of every turn, plus why it mattered. Golden turns are the ones worth rereading.</p>` +
+      (activeLabel ? `<p class="filter-note">${shown.length} tagged ${esc(activeLabel)} · <button data-clear>show all</button></p>` : '') +
+      Object.entries(groups).map(([month, items]) => `
+        <p class="eyebrow">${esc(month)}</p>
+        <ol class="list">${items.map(s => `
+          <li class="entry">
+            <h2><a href="#${esc(s.id)}">${esc(s.fm.title)}</a></h2>
+            <p class="why">${esc(s.fm.why)}</p>
+            <div class="meta">
+              <span>${fmtDate(s.fm.captured)}</span>
+              <span>${s.fm.turns} turns</span>
+              <span class="gold-count">${(s.fm.golden_turns || []).length} golden</span>
+              <span>${esc(s.fm.model)}</span>
+              ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
+              ${tagsHtml(s.fm.labels)}
+            </div>
+          </li>`).join('')}
+        </ol>`).join('');
+    document.title = 'Golden Convo';
+  }
+
+  function turnHtml(s, t, golden, ctx) {
+    const id = `${s.id}-t${t.n}`;
+    return `
+      <section class="turn ${t.role} ${golden ? 'golden' : ''}" id="${id}">
+        <div class="turn-label">
+          <a href="#${id}">${t.n} · ${t.role}</a>
+          ${golden ? '<span class="golden-chip">golden</span>' : ''}
+        </div>
+        ${ctx ? `<p class="ctx"><b>↳ replying to</b> ${esc(clip(ctx, 180))}</p>` : ''}
+        <div class="${t.role === 'user' ? 'prompt' : 'out'}">${md(t.text.trim())}</div>
+      </section>`;
+  }
+
+  // Golden turns render in place; each run of non-golden turns folds into one row.
+  function transcriptHtml(s, golden) {
+    const out = [];
+    let run = [];
+    const flush = () => {
+      if (!run.length) return;
+      const a = run[0].n, b = run[run.length - 1].n;
+      out.push(`
+        <details class="fold">
+          <summary>${run.length === 1 ? `turn ${a}` : `turns ${a}–${b}`} · ${run.length} not golden</summary>
+          ${run.map(t => turnHtml(s, t, false)).join('')}
+        </details>`);
+      run = [];
+    };
+    s.turns.forEach((t, i) => {
+      if (!golden.has(t.n)) { run.push(t); return; }
+      flush();
+      const prev = s.turns[i - 1];
+      const ctx = t.role === 'assistant' && prev && prev.role === 'user' && !golden.has(prev.n) ? plain(prev.text) : '';
+      out.push(turnHtml(s, t, true, ctx));
+    });
+    flush();
+    return out.join('');
+  }
+
+  function controlsHtml(s) {
+    const hidden = s.turns.filter(t => !(s.fm.golden_turns || []).includes(t.n)).length;
+    return `
+      <div class="controls">
+        <span class="lbl">Read as</span>
+        ${Object.keys(VIEWS).map(v => `<button data-view-btn="${v}" aria-pressed="${v === view}">${v}</button>`).join('')}
+        ${hidden ? `<span class="div"></span><button data-toggle-all aria-pressed="${showAll}">${showAll ? 'Golden turns only' : `Show all ${s.turns.length} turns`}</button>` : ''}
+      </div>
+      <p class="view-blurb">${VIEWS[view]}</p>`;
+  }
+
+  function renderPost(s) {
+    const golden = new Set(s.fm.golden_turns || []);
+    app.innerHTML = `
+      <header class="post-head">
+        <h1>${esc(s.fm.title)}</h1>
+        <p class="why">${esc(s.fm.why)}</p>
+        <div class="meta">
+          <span>${fmtDate(s.fm.captured)}</span><span>${s.fm.turns} turns</span>
+          <span>${esc(s.fm.mode || '')}</span>
+          ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
+          ${tagsHtml(s.fm.labels)}
+        </div>
+        <div id="controls">${controlsHtml(s)}</div>
+        ${golden.size ? `<nav class="jump" aria-label="Golden turns"><span class="lbl">Golden turns</span>${[...golden].map(n => `<a href="#${s.id}-t${n}">turn ${n}</a>`).join('')}</nav>` : ''}
+      </header>
+      <nav class="outline" aria-label="Outline"><span class="lbl">In this session</span><ol id="outline"></ol></nav>
+      <div class="win">
+        <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
+          <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span></div>
+        <div class="screen">${transcriptHtml(s, golden)}</div>
+      </div>
+      <dl class="colophon">
+        <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
+        <dt>Model</dt><dd>${esc(s.fm.model)}</dd>
+        <dt>Started</dt><dd>${esc(s.fm.started)}</dd>
+        <dt>Source</dt><dd>${esc(s.path)}</dd>
+      </dl>`;
+
+    // Outline: section headings inside golden replies, or the golden turns themselves when a reply has none.
+    const items = [];
+    app.querySelectorAll('.turn.golden.assistant').forEach(sec => {
+      const n = sec.id.split('-t').pop();
+      const hs = sec.querySelectorAll('.out h1, .out h2, .out h3');
+      if (!hs.length) { items.push(`<li><a href="#${sec.id}">${esc(clip(sec.querySelector('.out').textContent.trim(), 90))}</a><span class="t">turn ${n}</span></li>`); return; }
+      hs.forEach((h, i) => { h.id = `${sec.id}-h${i}`; items.push(`<li><a href="#${h.id}">${esc(h.textContent)}</a><span class="t">turn ${n}</span></li>`); });
+    });
+    document.getElementById('outline').innerHTML = items.join('');
+    applyFolds();
+    document.title = s.fm.title;
+  }
+
+  function applyFolds() { app.querySelectorAll('.fold').forEach(d => { d.open = showAll; }); }
+  function applyView() { document.querySelector('main.page').dataset.view = view; }
+
+  function route() {
+    const h = location.hash.slice(1);
+    const s = h && sessions.find(x => h === x.id || h.startsWith(x.id + '-t'));
+    if (s) {
+      const same = app.dataset.current === s.id;
+      if (!same) { showAll = false; renderPost(s); app.dataset.current = s.id; }
+      const el = h !== s.id && document.getElementById(h);
+      if (el) { const fold = el.closest('.fold'); if (fold) fold.open = true; el.scrollIntoView({ block: 'start' }); }
+      else if (!same) window.scrollTo(0, 0);
+    } else {
+      renderIndex(); app.dataset.current = ''; window.scrollTo(0, 0);
+    }
+  }
+
+  app.addEventListener('click', e => {
+    const tag = e.target.closest('.tag');
+    if (tag) { activeLabel = activeLabel === tag.dataset.label ? null : tag.dataset.label;
+      if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
+    if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
+    const s = sessions.find(x => x.id === app.dataset.current);
+    const vb = e.target.closest('[data-view-btn]');
+    if (vb && s) { view = vb.dataset.viewBtn; store.set('gc-view', view); applyView(); document.getElementById('controls').innerHTML = controlsHtml(s); return; }
+    if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('controls').innerHTML = controlsHtml(s); }
+  });
+
+  applyView();
+  load().then(files => {
+    sessions = files.map(f => parse(f.path, f.content))
+      .sort((a, b) => String(b.fm.captured).localeCompare(String(a.fm.captured)));
+    window.addEventListener('hashchange', route);
+    route();
+  }).catch(err => {
+    app.innerHTML = `<p class="status-msg">Couldn't load sessions: ${esc(err.message)}. Try reloading, or browse them on <a href="https://github.com/${REPO}">GitHub</a>.</p>`;
+  });
+  app.innerHTML = '<p class="status-msg">Loading sessions…</p>';
+})();
+</script>
+</body>
+</html>
