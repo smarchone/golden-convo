@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/serve.mjs",
+    "build": "node tools/build-posts.mjs"
+  },
+  "devDependencies": {
+    "js-yaml": "4.1.0"
+  }
+}
