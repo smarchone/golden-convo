@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Conversations with agents worth keeping, captured with /golden.">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZZCV0RCPVZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ZZCV0RCPVZ', { send_page_view: false });
+</script>
 <title>Golden Convo</title>
 <style>
 /* Layout: one reading column (860px) in the smarchone/skills look — dark terminal ground, coral accent, mono chrome.
@@ -379,9 +386,19 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   function applyFolds() { app.querySelectorAll('.fold').forEach(d => { d.open = showAll; }); }
   function applyView() { document.querySelector('main.page').dataset.view = view; }
 
+  // Sessions are hash routes, so report each one as its own page view.
+  let lastTracked = null;
+  function track(s) {
+    const path = location.pathname + (s ? '#' + s.id : '');
+    if (path === lastTracked || typeof gtag !== 'function') return;
+    lastTracked = path;
+    gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
+  }
+
   function route() {
     const h = location.hash.slice(1);
     const s = h && sessions.find(x => h === x.id || h.startsWith(x.id + '-t'));
+    track(s);
     if (s) {
       const same = app.dataset.current === s.id;
       if (!same) { showAll = false; renderPost(s); app.dataset.current = s.id; }
