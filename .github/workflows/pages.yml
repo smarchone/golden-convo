@@ -26,11 +26,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm i --no-save --no-package-lock js-yaml@4.1.0
+      - run: npm ci
       - name: Assemble site
         run: |
           mkdir _site
-          rsync -a --exclude .git --exclude .github --exclude tools --exclude node_modules --exclude _site ./ _site/
+          rsync -a --exclude .git --exclude .github --exclude tools --exclude node_modules --exclude _site --exclude package.json --exclude package-lock.json ./ _site/
           node tools/build-posts.mjs _site/posts.json
       - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
