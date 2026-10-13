@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-cloudflare-origin-story
+id: 2026-10-04-cloudflare-origin-story
 title: "Cloudflare origin story: Project Honey Pot to a global network that runs code"
 why: "Where Cloudflare came from: a security side project that became the network everything else got built on."
 why_source: suggested

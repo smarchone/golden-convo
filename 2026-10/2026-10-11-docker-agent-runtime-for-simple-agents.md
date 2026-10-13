@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-docker-agent-runtime-for-simple-agents
+id: 2026-10-11-docker-agent-runtime-for-simple-agents
 title: Docker Agent (cagent) is an agent runtime + harness for simple, tool-heavy agents, not a workflow engine
 why: Docker Agent = stop stitching an agent from scratch every time; great for simple tool-heavy agents, wrong tool for complex workflows.
 why_source: suggested

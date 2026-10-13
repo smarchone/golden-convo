@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-pi-harness-vs-agent-sdks
+id: 2026-09-27-pi-harness-vs-agent-sdks
 title: "pi agent harness: a minimal loop vs agent SDKs and managed agents"
 why: pi sits in the same layer as agent SDKs but bets on minimal; the gap vs managed agents is operations, not intelligence.
 why_source: suggested

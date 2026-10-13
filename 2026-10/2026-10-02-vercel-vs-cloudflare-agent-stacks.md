@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-vercel-vs-cloudflare-agent-stacks
+id: 2026-10-02-vercel-vs-cloudflare-agent-stacks
 title: "Vercel vs Cloudflare: core abstractions, agent stacks, and why Cloudflare's edge compute evolved"
 why: Each Cloudflare product removed the main limitation of the one before; compare that to Vercel's agentic stack.
 why_source: suggested

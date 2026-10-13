@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-build-vs-buy-mixpanel-confluent
+id: 2026-09-22-build-vs-buy-mixpanel-confluent
 title: "Build vs buy: buy Mixpanel; buy managed Kafka but unbundle Confluent"
 why: Spending $110k of engineer time to save $11k is the trap; for Confluent you pay for three products and use one.
 why_source: suggested

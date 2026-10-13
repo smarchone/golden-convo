@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-evals-mental-models
+id: 2026-09-27-evals-mental-models
 title: "Evals mental models: context is signal, evals are verification"
 why: Context is about signal and evals are about verification; evals and traces find issues across layers, and context and tools are what we tune.
 why_source: suggested

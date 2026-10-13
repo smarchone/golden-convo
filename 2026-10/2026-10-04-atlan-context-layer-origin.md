@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-atlan-context-layer-origin
+id: 2026-10-04-atlan-context-layer-origin
 title: "Atlan's context layer: from data catalog to context for AI agents"
 why: How Atlan went from a data catalog to selling the context layer for agents.
 why_source: suggested

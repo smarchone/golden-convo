@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-vercel-origin-story
+id: 2026-10-04-vercel-origin-story
 title: "Vercel origin story: from ZEIT now to the AI cloud"
 why: Where Vercel came from, so its agent strategy makes sense.
 why_source: suggested

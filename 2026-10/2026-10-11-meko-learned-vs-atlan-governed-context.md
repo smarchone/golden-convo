@@ -1,6 +1,6 @@
 ---
 schema: 1
-id: 2026-10-13-meko-learned-vs-atlan-governed-context
+id: 2026-10-11-meko-learned-vs-atlan-governed-context
 title: Meko turns mem0 into generic context infra; Atlan is governed data context
 why: "Meko wraps mem0 into context infra over memory, KB, convos and traces (context mining); Atlan is the other half: learned context vs governed context."
 why_source: suggested
