@@ -15,10 +15,6 @@ Raw transcripts stay local; `source_path` points at them best-effort.
 
 `index.html` fetches each path in `index.json` and renders it with marked. Golden turns show in full; other turns fold into a row you can open. Readers can switch between terminal, reader and skim views.
 
-Preview locally with `python3 -m http.server` and open `http://localhost:8000`. When you add a session, add its path to `index.json`:
-
-```sh
-ls 20*/*.md | python3 -c "import sys,json; print(json.dumps(sorted(l.strip() for l in sys.stdin), indent=2))" > index.json
-```
+Preview locally with `python3 -m http.server` and open `http://localhost:8000`. The site shows only the sessions listed in `index.json`, so publishing one means adding its path there, and leaving a path out keeps that session off the site (the file stays in the repo and is still public).
 
 `.nojekyll` stops GitHub Pages from converting the `.md` files to HTML.
