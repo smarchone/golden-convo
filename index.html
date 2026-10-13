@@ -272,7 +272,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     shown.forEach(s => (groups[monthKey(s.fm.captured)] ||= []).push(s));
     app.innerHTML = `
       <p class="hero">Conversations <em>worth keeping.</em></p>
-      <p class="lede">Sessions with agents, saved with <code>/golden</code>: the full text of every turn, plus why it mattered. Golden turns are the ones worth rereading.</p>` +
+      <p class="lede">Sessions with agents, saved with <a href="https://smarchone.github.io/skills"><code>/golden</code></a>: the full text of every turn, plus why it mattered. Golden turns are the ones worth rereading.</p>` +
       (activeLabel ? `<p class="filter-note">${shown.length} tagged ${esc(activeLabel)} · <button data-clear>show all</button></p>` : '') +
       Object.entries(groups).map(([month, items]) => `
         <p class="eyebrow">${esc(month)}</p>
