@@ -260,12 +260,24 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       .filter(x => x.type === 'blob' && /^\d{4}-\d{2}\/[^/]+\.md$/.test(x.path)).map(x => x.path);
   }
 
-  // Embedded data (preview) wins; otherwise list the repo's session files and fetch them from this site.
+  // Embedded data (preview) wins. Next, posts.json (built by the pages workflow) carries each session's frontmatter,
+  // and its .md is fetched when opened. Without it (a local http.server preview), fetch every listed session up front.
   async function load() {
     const emb = document.getElementById('sessions');
-    if (emb && emb.textContent.trim()) return JSON.parse(emb.textContent);
+    if (emb && emb.textContent.trim()) return JSON.parse(emb.textContent).map(f => parse(f.path, f.content));
+    const built = await fetch('posts.json').catch(() => null);
+    if (built && built.ok) return (await built.json()).map(p => ({ ...p, turns: null }));
     const paths = await listPaths();
-    return Promise.all(paths.map(p => fetch(p).then(r => r.text()).then(content => ({ path: p, content }))));
+    return Promise.all(paths.map(p => fetch(p).then(r => r.text()).then(content => parse(p, content))));
+  }
+
+  // Fill in a session's turns (and full frontmatter) the first time it is opened.
+  async function full(s) {
+    if (s.turns) return s;
+    const res = await fetch(s.path);
+    if (!res.ok) throw new Error(`${s.path} (${res.status})`);
+    Object.assign(s, parse(s.path, await res.text()));
+    return s;
   }
 
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -407,13 +419,21 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
   }
 
-  function route() {
+  async function route() {
     const h = location.hash.slice(1);
     const s = h && sessions.find(x => h === x.id || h.startsWith(x.id + '-t'));
     track(s);
     if (s) {
       const same = app.dataset.current === s.id;
-      if (!same) { showAll = false; renderPost(s); app.dataset.current = s.id; }
+      if (!same) {
+        if (!s.turns) {
+          app.innerHTML = '<p class="status-msg">Loading session…</p>';
+          try { await full(s); }
+          catch (err) { app.innerHTML = `<p class="status-msg">Couldn't load ${esc(err.message)}. Try reloading.</p>`; app.dataset.current = ''; return; }
+          if (location.hash.slice(1) !== h) return; // navigated away while loading
+        }
+        showAll = false; renderPost(s); app.dataset.current = s.id;
+      }
       const el = h !== s.id && document.getElementById(h);
       if (el) { const fold = el.closest('.fold'); if (fold) fold.open = true; el.scrollIntoView({ block: 'start' }); }
       else if (!same) window.scrollTo(0, 0);
@@ -434,9 +454,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   });
 
   applyView();
-  load().then(files => {
-    sessions = files.map(f => parse(f.path, f.content))
-      .sort((a, b) => String(b.fm.captured).localeCompare(String(a.fm.captured)));
+  load().then(list => {
+    sessions = list
+      .sort((a, b) => new Date(b.fm.captured) - new Date(a.fm.captured));
     window.addEventListener('hashchange', route);
     route();
   }).catch(err => {
