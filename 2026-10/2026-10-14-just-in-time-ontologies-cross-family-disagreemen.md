@@ -13,9 +13,9 @@ started: "2026-10-14T16:59:07.792Z"
 captured: "2026-10-14T17:41:09Z"
 cwd: ~/Documents/proj/claude/spark/ideas
 mode: "skill:few-shot"
-turns: 16
+turns: 14
 complete: true
-golden_turns: [12, 16]
+golden_turns: [12, 14]
 labels: [agents, few-shot, simulation, knowledge-mgmt]
 status: raw
 ---
@@ -205,118 +205,9 @@ Mostly yes. Four corrections sharpen it.
 
 ### 13 · **user:**
 
-/productivity:report-panel the above
-
-### 14 · **assistant:**
-
-# Southbridge's self-optimizing data pipelines: cheap judgment replaces up-front ontology work
-**Source:** "Just-in-Time Ontologies: What Cheap Intelligence Means for Data", Hrishi Olickel (Southbridge AI), AI Engineer, [youtube.com/watch?v=Fa3hQVIKShw](https://www.youtube.com/watch?v=Fa3hQVIKShw), 21 min · **For:** a general reader (CEO first)
-> Source note: built from YouTube auto-captions only, no Q&A. Names I corrected: "Hank Weave/Hank Wave" → Hankweave ⚑ (spelling inferred), "burrito surfing / Pareto serving" → Pareto surfing. Still unclear: the decision model ("Jev/Jeff"), "Luna", the agent "4A on Astra", the "checking letter" part, and "Outpace" in the closing line. Treat all numbers as directional.
-
-## CEO note
-- **What's happening:** judgment is now cheap and available at every point on the cost/quality frontier. Data transformation was the last bottleneck, so data infrastructure designed around "transformation is expensive" is due to change.
-- **Why it matters:** the moat isn't the model. It's trust in the result. Every one of 203,317 labels carries a receipt saying what the answer rests on and how far it was checked. Behind that sit a stable harness and a library of tested parts that each new job makes better.
-- **The real constraint:** model priors. Models quietly "correct" data to match their beliefs, and their output still reconciles. In one case $784k became $5.3M and several models validated it. The speaker calls this the fastest-growing class of error in data work.
-- **Opportunity:** entity resolution and migrations at about a tenth of the cost: $10k projected, $795 actual. A repeat job, such as the next state, is expected to need near-zero audit budget.
-- **Threat:** chat-style agents always produce an answer, and "the moment a number exists, it argues for a result." Mistakes made in chat pile up unseen.
-- **Watch:** whether frontier models gain the 4 missing pieces natively: a stable surface, bounded experiments, know-how, and a failure surface. The speaker says today's best models are "barely good" at this.
-- **Bottom line:** stop funding universal-ontology projects. Fund pipelines that build meaning per decision, verify it, and keep the receipts.
-
-## The product
-**Capabilities**
-
-| Capability | What it does | Where it sits | Status (per source) |
-|---|---|---|---|
-| Hankweave harness | Wraps fast-moving agent runtimes (Claude Code, Pi) in a consistent log/API with checkpointing, rollback and budget enforcement | Foundation | Open source. Speaker calls it "oldest, most stable, most open" for headless data work |
-| Self-optimizing agents (hill-climbers) | Build, run and debug pipelines, and try different architectures | Above the pipeline | Used in production: 10 days, 12+ architectures, 4,000+ runs, 90k decision-model calls, ~6B tokens |
-| Role-split model slots | Designer models (Opus-class), worker models (cheap and fast, including decision models), optimizer models | Inside and around pipelines | In use |
-| Cross-model prior intersection | Uses disagreement between model families to find errors | Verification | 194/200 agreed with zero errors; every error was in the 6 disagreements |
-| Rigs and codons | Bounded work segments that can be reused, looped, validated and sequenced | Pipeline building blocks | In use |
-| Library of agentic parts | Patterns that have been tested before; new ones added after each job | Reuse layer | Growing; Ohio added new parts |
-| Pareto surfing | Swaps in cheaper or faster models against a verified baseline | Optimization | Produced the $795 result |
-| Receipts per label | Records what each answer rests on and how deeply it was checked | Output | Covers all 203,317 Ohio cases |
-
-**How it fits**
-```
-        problem + budget + failure surface
-                     │
-        ┌────────────▼─────────────┐
-        │  hill-climber agent       │  (designer/optimizer models)
-        └────────────┬─────────────┘
-   inspect & split → define failure surface → bounded pilots
-                     │
-              rigs ─ codons ─ codons        (worker / decision models)
-                     │
-   cross-family check · known-prior checks · hand-checked slice
-                     │
-     labels + receipts  ──►  JIT ontology (stored, reusable)
-                     │
-                 production ──► Pareto surf (cheaper models, same baseline)
-        all runs on Hankweave: versioned, rollback, budget-capped
-```
-The loop: split the job → set the failure surface → run pilots → turn what works into codons → verify → Pareto-surf → write learnings into the parts library → back to split, on the next job.
-
-## PM view
-- **The experience vision:** work starts by handing over a *problem, a way to fail safely, and a place to work*, not a spec. The user stops writing transforms and starts deciding what counts as failure and evidence. Two things go away: up-front ontology projects, and manual audits on repeat jobs.
-- **Impact claimed:**
-  - $10k projected → $795 on a fixed $800 budget, done in 10 days.
-  - Checking cost about 4× doing: $545 on second opinions, disagreements and audit vs $128 on first answers. ⚑ About $120 of the $795 isn't broken out.
-  - A cheap reasoning model alone matched "Fable" at about 2% of the cost on 200 held-out families.
-  - Audit for the next state is expected to cost close to zero. This is a projection.
-- **Novel approaches that change the experience:**
-  - **The budget is set first and enforced.** The pipeline works within it rather than reporting a cost afterwards.
-  - **Errors get fixed by rewriting the question, not the model.** The household failure flipped from "no" on all cases to "yes" by spelling out what counts as enough evidence.
-  - **Every answer carries a receipt.** Trust can be checked label by label.
-  - **Every iteration is a version-controlled run.** Runs can be reverted, compared and critiqued, unlike work done in a chat thread.
-- **Gaps and open questions:**
-  - How a failure surface gets defined for problems that aren't entity resolution. The speaker calls it "hardest to put into words."
-  - How much human time went into the 12+ definition rounds.
-  - ⚑ How receipts reach the person making the decision. No UI was shown.
-  - Only one case study was presented.
-  - The talk opens as Southbridge and closes as "Outpace". It's unclear whether that's a rebrand or a caption error.
-
-## Architect view
-**Layers**
-
-| Component | Key property |
-|---|---|
-| Agent runtimes (Claude Code, Pi) | Change quickly; Hankweave isolates the rest from that churn |
-| Hankweave | A stable, checkpointed, budget-enforced log and API |
-| Rigs and codons | Bounded and independently validatable |
-| Model slots by role | Designer is thick and slow; worker is cheap and predictable; optimizer explores within bounds |
-| Verification | Cross-family disagreement, a hand-checked slice, known-prior checks |
-| JIT ontology intermediates | Built per decision class, stored with receipts, reused |
-
-**Key design decisions**
-
-| Chosen | Gives up |
-|---|---|
-| Runs are versioned and taken off the main thread, not left in an interactive chat | Immediacy; needs a harness and run infrastructure |
-| Separate models per role | The simplicity of one agent with one context |
-| Verification gets most of the budget (~4×) | Raw cost per answer |
-| Meaning is built per decision, just in time | A single canonical model; reuse depends on labeling context well |
-| Cross-family checking | Must avoid models distilled from each other, which share priors (stated) |
-
-**Hard problems**
-- **Errors all LLMs share:** 4 families produced the same wrong total because of a shared sign convention. Disagreement checks can't catch these, so they need a list and a specific check for each.
-- **Wrong data that passes reconciliation:** 99.4% of dates came out empty, yet row and dollar totals matched.
-- **Defining failure surfaces in general**, and models that are "barely good" at self-optimizing.
-- ⚑ Invalidating stored ontologies when sources or decision definitions change.
-- ⚑ The optimizer can drift toward passing its own failure surface instead of being correct.
-
-**Extension points**
-- Swap models per codon as the Pareto frontier moves. New model classes, such as decision models, slot in as workers.
-- Add tested parts to the library.
-- Add new prior checks as new classes of error show up.
-- Hankweave is offered as a skill for other teams' headless data work.
-
-I can turn this into a shareable page if you'd like.
-
-### 15 · **user:**
-
 /intuition just the simulation aspect of the above
 
-### 16 · **assistant:**
+### 14 · **assistant:**
 
 # Intuition: catching an agent's wrong interpretations, then turning them into definitions
 
