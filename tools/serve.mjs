@@ -4,7 +4,7 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';
-import { buildPosts } from './build-posts.mjs';
+import { buildPosts, rawBody } from './build-posts.mjs';
 
 const port = +process.argv[2] || 8000;
 const TYPES = { '.html': 'text/html', '.json': 'application/json', '.md': 'text/markdown', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png' };
@@ -14,6 +14,9 @@ createServer(async (req, res) => {
   const send = (code, body, type = 'text/plain') => { res.writeHead(code, { 'content-type': `${type}; charset=utf-8`, 'cache-control': 'no-store' }); res.end(body); };
   try {
     if (path === '/posts.json') return send(200, JSON.stringify(buildPosts()), TYPES['.json']);
+    const raw = path.match(/^\/([^/]+)\.md$/);
+    const post = raw && buildPosts().find(p => p.id === raw[1]);
+    if (post) return send(200, rawBody(post.path), TYPES['.md']);
     const file = normalize(join('.', path));
     if (file.startsWith('..') || file.split(/[\\/]/).some(p => p.startsWith('.') || p === 'node_modules')) return send(404, 'not found');
     send(200, await readFile(file), TYPES[extname(file)] || 'application/octet-stream');
