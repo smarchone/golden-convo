@@ -261,7 +261,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   // Embedded data (preview) wins. Next, posts.json (built by the pages workflow) carries each session's frontmatter,
-  // and its .md is fetched when opened. Without it (a local http.server preview), fetch every listed session up front.
+  // and its .md is fetched when opened. Sessions not in index.json come back `unlisted`: off the index, open by link. Without it (a local http.server preview), fetch every listed session up front.
   async function load() {
     const emb = document.getElementById('sessions');
     if (emb && emb.textContent.trim()) return JSON.parse(emb.textContent).map(f => parse(f.path, f.content));
@@ -293,7 +293,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   function renderIndex() {
-    const shown = sessions.filter(s => !activeLabel || (s.fm.labels || []).includes(activeLabel));
+    const shown = sessions.filter(s => !s.unlisted && (!activeLabel || (s.fm.labels || []).includes(activeLabel)));
     const groups = {};
     shown.forEach(s => (groups[monthKey(s.fm.captured)] ||= []).push(s));
     app.innerHTML = `
