@@ -79,10 +79,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .post-head { margin:0 0 22px; display:grid; gap:12px; }
 .post-head h1 { margin:0; font:700 clamp(28px, 5vw, 42px)/1.1 var(--sans); color:var(--white); letter-spacing:-.03em; text-wrap:balance; }
 .post-head .why { font-size:15px; }
-.jump { display:flex; flex-wrap:wrap; align-items:center; gap:8px 6px; font:13px/1 var(--mono); color:var(--faint); }
-.jump span.lbl { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; margin-right:4px; }
-.jump a { color:var(--accent); border:1px solid var(--accent-line); background:var(--accent-soft); border-radius:999px; padding:7px 12px; text-decoration:none; }
-.jump a:hover { border-color:var(--accent); }
 
 .win { background:var(--win); border:1px solid var(--line); border-radius:14px; overflow:hidden;
        box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.02) inset; }
@@ -143,11 +139,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; }
 .controls .lbl { font:11px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.08em; margin-right:2px; }
 .controls .div { width:1px; height:20px; background:var(--line); margin:0 6px; }
-.controls button { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
+.controls button, .fold-toggle { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
   border:1px solid var(--line); border-radius:999px; padding:8px 12px; transition:color .15s, border-color .15s; }
-.controls button:hover { color:var(--fg); border-color:var(--faint); }
-.controls button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
-.view-blurb { font:12px var(--mono); color:var(--faint); margin:6px 0 0; }
+.controls button:hover, .fold-toggle:hover { color:var(--fg); border-color:var(--faint); }
+.controls button[aria-pressed="true"], .fold-toggle[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
 
 /* folded runs of non-golden turns */
 .fold { margin:18px 0; }
@@ -220,16 +215,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   let activeLabel = null;
   let showAll = false;
 
-  const VIEWS = {
-    terminal: 'The full transcript in the terminal style of the skills page.',
-    reader: 'Larger proportional type in a narrow column, without the terminal frame.',
-    skim: 'Only the golden turns, with an outline of their sections.',
-  };
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
-  };
-  let view = VIEWS[store.get('gc-view')] ? store.get('gc-view') : 'terminal';
+  const VIEWS = { terminal: 1, reader: 1, skim: 1 };
+  let view = 'terminal'; // every post opens in the terminal view; the other views are per-visit
 
   // Both turn-marker formats in the repo: "### 3 · **user:**" and "**3. user:**"
   const TURN = /^(?:### (\d+) · \*\*(user|assistant):\*\*|\*\*(\d+)\. (user|assistant):\*\*)[ \t]*$/gm;
@@ -356,14 +343,17 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   function controlsHtml(s) {
-    const hidden = s.turns.filter(t => !(s.fm.golden_turns || []).includes(t.n)).length;
     return `
       <div class="controls">
         <span class="lbl">Read as</span>
         ${Object.keys(VIEWS).map(v => `<button data-view-btn="${v}" aria-pressed="${v === view}">${v}</button>`).join('')}
-        ${hidden ? `<span class="div"></span><button data-toggle-all aria-pressed="${showAll}">${showAll ? 'Golden turns only' : `Show all ${s.turns.length} turns`}</button>` : ''}
-      </div>
-      <p class="view-blurb">${VIEWS[view]}</p>`;
+      </div>`;
+  }
+
+  // Collapse / expand the non-golden turns; sits beside the tags in the post header.
+  function toggleHtml(s) {
+    const hidden = s.turns.filter(t => !(s.fm.golden_turns || []).includes(t.n)).length;
+    return hidden ? `<button class="fold-toggle" data-toggle-all aria-pressed="${showAll}">${showAll ? 'Collapse to golden turns' : `Show all ${s.turns.length} turns`}</button>` : '';
   }
 
   function renderPost(s) {
@@ -377,9 +367,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           <span>${esc(s.fm.mode || '')}</span>
           ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
           ${tagsHtml(s.fm.labels)}
+          <span id="toggle">${toggleHtml(s)}</span>
         </div>
         <div id="controls">${controlsHtml(s)}</div>
-        ${golden.size ? `<nav class="jump" aria-label="Golden turns"><span class="lbl">Golden turns</span>${[...golden].map(n => `<a href="#${s.id}-t${n}">turn ${n}</a>`).join('')}</nav>` : ''}
       </header>
       <nav class="outline" aria-label="Outline"><span class="lbl">In this session</span><ol id="outline"></ol></nav>
       <div class="win">
@@ -449,8 +439,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
     const vb = e.target.closest('[data-view-btn]');
-    if (vb && s) { view = vb.dataset.viewBtn; store.set('gc-view', view); applyView(); document.getElementById('controls').innerHTML = controlsHtml(s); return; }
-    if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('controls').innerHTML = controlsHtml(s); }
+    if (vb && s) { view = vb.dataset.viewBtn; applyView(); document.getElementById('controls').innerHTML = controlsHtml(s); return; }
+    if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
   });
 
   applyView();
