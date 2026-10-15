@@ -2,7 +2,7 @@
 schema: 1
 id: 2026-10-15-storyboard-as-a-new-medium-abstract-stories-dire
 title: "Storyboard as a new medium: abstract stories, director mods as personalities"
-why: "Storyboard isn't a renderer, it's a medium: abstract stickman stories where the director mod is a storytelling personality, and users create the culture."
+why: "Storyboard isn't a renderer, it's a medium: abstract stickman stories where directors live in decisions not pixels, mods are generated skills anyone can make, and users create the culture."
 why_source: suggested
 harness: claude-code
 harness_version: 2.1.300
@@ -10,12 +10,12 @@ model: claude-opus-5-5
 session_id: 116dc4dd-61b8-4752-aed7-3f819c2b2f1c
 source_path: ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/116dc4dd-61b8-4752-aed7-3f819c2b2f1c.jsonl
 started: "2026-10-15T19:09:47.371Z"
-captured: "2026-10-15T19:23:51Z"
+captured: "2026-10-15T20:01:09Z"
 cwd: ~/Documents/proj/claude/spark/ideas
 mode: "skill:intuition-panel"
-turns: 8
+turns: 14
 complete: true
-golden_turns: [4, 6, 8]
+golden_turns: [4, 6, 8, 10, 12, 14]
 labels: [product-idea, platforms]
 status: raw
 ---
@@ -153,3 +153,97 @@ so, i create a platform/tool, users create culture
 ---
 
 **The question to answer:** Do **you** own the directors (a curated, consistent voice, like a publisher), or do **users** make them too (an open, messy ecosystem of storytelling styles)?
+
+### 9 · **user:**
+
+is anyone doing this already ?
+
+### 10 · **assistant:**
+
+[ran: WebSearch — AI stick figure comic generator from story text]
+[ran: WebSearch — AI storyboard generator from text 2026]
+[ran: WebSearch — AI comic strip app retell stories narrator style remix social]
+
+Partly. The pieces exist, but I didn't find anyone who has put them together the way you're describing. That's based on three quick searches and the vendors' own pages; I haven't used any of these products.
+
+**What already exists**
+
+| Group | Examples | How it differs from your idea |
+|---|---|---|
+| Storyboards for film | [Storyboarder.ai](https://www.atlabs.ai/blog/ai-storyboard-generator-2026), [Drawstory](https://www.drawstory.ai/blog/best-ai-tools-story-to-comics-storyboards), [StoryboardHero](https://storyboardhero.ai/storyboardhero-ai-script-to-storyboard-generator), [Adobe Firefly Boards](https://www.adobe.com/in/products/firefly/features/storyboard.html) | Built for filmmakers who start from a script. They aim for realistic frames and consistent characters, the opposite of your direction. |
+| Text-to-comic generators | [LlamaGen](https://llamagen.ai/features/ai-comic-strips-maker), [Pollo](https://pollo.ai/comic-strip-maker), [Fotor](https://www.fotor.com/features/ai-comic-generator/), [Komiko](https://komiko.app/ai-comic-generator), [Comicsify](https://comicsify.com/) | Image generators with a "style" dropdown. They have no storytelling personality and no remix loop. |
+| Stick-figure tools | [Stickify Tales](https://peerlist.io/ajbatac/project/stickify-tales), [LlamaGen's stick-figure generator](https://llamagen.ai/en-gb/tools/stick-figure-comic-generator--abcd32a) | The closest in look. They're small tools that turn prompts into panels. |
+| Comics with a social feed | [Commix](https://commix.ai/) | The closest in shape: an AI cartoon feed with "narrator stories," persona packs, voice-over and publishing. Look at this one first. |
+
+**What nobody seems to have claimed**
+
+1. **The director as the product.** Everyone else offers *visual* styles. A storytelling *personality* that decides which beats to show, what to leave out and where the punchline lands doesn't show up anywhere. Commix's "persona packs" might be close, so check what they actually do.
+2. **Abstraction as the point.** The whole category is racing toward realism and consistent characters. Stick figures are offered as a cheap style, never as a deliberate way to leave room for the reader's imagination.
+3. **A grammar and a deterministic renderer.** These products all generate pixels. Treating a story as data, so it can be re-rendered instantly with a different director, is a structural difference, not just a feature.
+4. **A medium rather than a tool.** None of them define a format (like "any story in 6 panels") with a remix verb built in.
+
+**Honest risk:** in a demo, the gap is easy to miss. "Stick-figure comic from text" already exists. You only stand out if the difference in storytelling between two directors is obvious within one strip.
+
+The question this raises: would you test it first by showing that a single director is *good* (one strip people want to share), or that directors are *different* (the same story told three ways, side by side)?
+
+### 11 · **user:**
+
+may be we can pitch as a study for filmmakers. how would quntin make this story or quntin vs wes on same story
+
+### 12 · **assistant:**
+
+**CEO:** "Quentin vs Wes on the same story" is a great **hook** and a weak **market**. Filmmakers are a small group who want realistic pre-viz, which pulls you back toward the storyboard tools you were trying to get away from. Use the matchup as the trailer for the medium, not as the customer.
+
+**PM:** The real pull is from **film fans and students**, not filmmakers. "How would Tarantino tell Cinderella?" is a video essay you can make in 30 seconds. That's the bridge: it starts as entertainment, and the analysis comes along for free.
+
+**Architect:** Abstraction helps more than you'd expect. A director's signature lives mostly in **structure**, which stickmen can show perfectly well:
+
+```
+             TARANTINO                         WES ANDERSON
+  order:     ch.3 → ch.1 → ch.2 (out of order)  in order, with title cards
+  framing:   low trunk shot, close-ups          dead-center, symmetric, flat
+  beats:     long talk → sudden violence        tidy, deadpan, small heartbreak
+  gaps:      skips the event, shows the fallout  narrator tells you what's missing
+```
+
+**CEO:** That table is the pitch. If stickmen can make Tarantino and Wes *recognizable*, you've shown that directors live in decisions, not pixels. That's the thesis of the whole product.
+
+**PM:** The share format is a side-by-side split: same story, two directors, and people vote or argue. Arguing about whose version is better is the engagement loop.
+
+**Architect:** Hard reality: a director's *style* can't be copyrighted, but their *name* in your marketing is a right-of-publicity and endorsement problem. Plan for "In the style of…" or labels like "The Nonlinear Bloodbath vs The Symmetric Deadpan." Users will name the directors themselves.
+
+---
+
+**The question to answer:** Is "Quentin vs Wes" your **launch demo**, or your **product category** ("director studies")? The first draws people into the broader medium. The second narrows you down to film nerds, who are a great audience but a small one.
+
+### 13 · **user:**
+
+launch demo, not the category. thats why we have mods. people can add mods of who ever they want. mod is just a skill i guess which can be generated
+
+### 14 · **assistant:**
+
+**CEO:** Then the real unlock is that *a way of telling stories* becomes something anyone can write, share and fork. Mods are to this medium what fonts are to type. "Quentin vs Wes" gets people in the door. "Make a director out of your grandma" makes them stay.
+
+**PM:** If a mod is a generated skill, the creation loop has to be as easy as telling a story: *"make a director who tells everything like a nature documentary"* gets you a mod you can use immediately. The share moment is "try my director on your story."
+
+**Architect:** A mod is a skill whose output is the scene grammar. That's the only contract it has with the core:
+
+```
+  "tell it like a nature doc"  ──▶ [ MOD GENERATOR ] ──▶  mod (skill)
+                                                          ├─ voice: hushed, observational
+                                                          ├─ beats: patience → sudden action
+                                                          ├─ framing: wide, distant, still
+                                                          └─ gaps: never explains motive
+                                                                │
+                              any story ──▶ [ mod ] ──▶ scene grammar ──▶ [ CORE ] ──▶ strip
+```
+
+**CEO:** Mods that anyone can generate also give you the long tail for free: activists, critics and teachers each build the voice they need. You never have to predict their use cases.
+
+**PM:** The risk is that generated mods all drift toward the same polished "LLM storyteller" voice. A mod is only worth something if it's **distinct**. Run the same story through two mods, and if the strips look alike, the mod failed.
+
+**Architect:** That gives you a built-in quality check: render a standard set of stories through each new mod and measure how far its output is from the others'. Distinctiveness is the score, not polish.
+
+---
+
+**The question to answer:** Is a mod made by **describing** it ("tell it like a nature documentary") or by **showing** it (feeding in 3 examples of the voice you want, such as Tarantino scenes or grandma's voice notes)? Describing is easy but generic. Showing is harder but captures the real thing.
