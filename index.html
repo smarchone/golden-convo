@@ -135,14 +135,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 }
 @media (prefers-reduced-motion: no-preference) { .turn:target { animation:flash 1.4s ease-out; } @keyframes flash { from { background:rgba(222,138,104,.22); } } }
 
-/* controls */
-.controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; }
-.controls .lbl { font:11px/1 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.08em; margin-right:2px; }
-.controls .div { width:1px; height:20px; background:var(--line); margin:0 6px; }
-.controls button, .fold-toggle { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
+/* fold toggle */
+.fold-toggle { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
   border:1px solid var(--line); border-radius:999px; padding:8px 12px; transition:color .15s, border-color .15s; }
-.controls button:hover, .fold-toggle:hover { color:var(--fg); border-color:var(--faint); }
-.controls button[aria-pressed="true"], .fold-toggle[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+.fold-toggle:hover { color:var(--fg); border-color:var(--faint); }
+.fold-toggle[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
 
 /* folded runs of non-golden turns */
 .fold { margin:18px 0; }
@@ -158,42 +155,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .ctx b { color:var(--faint); font-weight:400; }
 .fold[open] + .turn .ctx { display:none; }
 
-/* outline (skim) */
-.outline { display:none; border:1px solid var(--line); border-radius:14px; background:var(--card); padding:16px 20px; margin:0 0 18px; }
-.outline .lbl { font:11px/1 var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
-.outline ol { margin:10px 0 0; padding-left:1.2em; display:grid; gap:4px; }
-.outline a { text-decoration:none; color:var(--fg); }
-.outline a:hover { color:var(--accent); }
-.outline .t { font:11px var(--mono); color:var(--faint); margin-left:6px; }
-
-/* Reader: same palette, proportional type at reading size, no terminal chrome */
-[data-view="reader"] .win, [data-view="skim"] .win { background:none; border:0; box-shadow:none; border-radius:0; overflow:visible; }
-[data-view="reader"] .bar, [data-view="skim"] .bar { display:none; }
-[data-view="reader"] .screen, [data-view="skim"] .screen { padding:0; font:17px/1.75 var(--sans); max-width:68ch; }
-[data-view="reader"] .out, [data-view="skim"] .out { padding-left:0; }
-[data-view="reader"] .out::before, [data-view="skim"] .out::before { display:none; }
-[data-view="reader"] .out h1, [data-view="reader"] .out h2, [data-view="skim"] .out h1, [data-view="skim"] .out h2 { font-size:1.25em; color:var(--white); letter-spacing:-.01em; }
-[data-view="reader"] .out h3, [data-view="reader"] .out h4, [data-view="skim"] .out h3, [data-view="skim"] .out h4 { font-size:1.05em; }
-[data-view="reader"] .out p, [data-view="reader"] .out ul, [data-view="reader"] .out ol,
-[data-view="skim"] .out p, [data-view="skim"] .out ul, [data-view="skim"] .out ol { margin-bottom:1.1em; }
-[data-view="reader"] .out table, [data-view="skim"] .out table { font-size:14px; line-height:1.5; }
-[data-view="reader"] .out code, [data-view="skim"] .out code { font-size:.85em; }
-[data-view="reader"] .prompt, [data-view="skim"] .prompt { font:15px/1.6 var(--mono); color:var(--dim); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
-[data-view="reader"] .ctx, [data-view="skim"] .ctx { padding-left:0; }
-[data-view="reader"] .turn.golden, [data-view="skim"] .turn.golden { margin-left:0; padding-left:16px; }
-[data-view="reader"] .turn + .turn.user, [data-view="skim"] .turn + .turn.user { border-top:0; margin-top:36px; padding-top:0; }
-[data-view="reader"] .turn.assistant, [data-view="skim"] .turn.assistant { margin-top:20px; }
-
-/* Skim: only golden turns plus an outline; "Show all turns" brings the folds back */
-[data-view="skim"] .outline { display:block; }
-[data-view="skim"] .fold:not([open]) { display:none; }
-
 .status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
 
 @media (max-width:600px) {
-  .controls .div { display:none; }
-  [data-view="reader"] .screen, [data-view="skim"] .screen { font-size:16px; }
-  [data-view="reader"] .turn.golden, [data-view="skim"] .turn.golden { margin-left:0; padding-left:12px; }
 }
 </style>
 </head>
@@ -215,8 +179,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   let activeLabel = null;
   let showAll = false;
 
-  const VIEWS = { terminal: 1, reader: 1, skim: 1 };
-  let view = 'terminal'; // every post opens in the terminal view; the other views are per-visit
 
   // Both turn-marker formats in the repo: "### 3 · **user:**" and "**3. user:**"
   const TURN = /^(?:### (\d+) · \*\*(user|assistant):\*\*|\*\*(\d+)\. (user|assistant):\*\*)[ \t]*$/gm;
@@ -342,18 +304,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     return out.join('');
   }
 
-  function controlsHtml(s) {
-    return `
-      <div class="controls">
-        <span class="lbl">Read as</span>
-        ${Object.keys(VIEWS).map(v => `<button data-view-btn="${v}" aria-pressed="${v === view}">${v}</button>`).join('')}
-      </div>`;
-  }
-
   // Collapse / expand the non-golden turns; sits beside the tags in the post header.
   function toggleHtml(s) {
     const hidden = s.turns.filter(t => !(s.fm.golden_turns || []).includes(t.n)).length;
-    return hidden ? `<button class="fold-toggle" data-toggle-all aria-pressed="${showAll}">${showAll ? 'Collapse to golden turns' : `Show all ${s.turns.length} turns`}</button>` : '';
+    return hidden ? `<button class="fold-toggle" data-toggle-all aria-pressed="${showAll}">${showAll ? 'Golden turns only' : `Show all ${s.turns.length} turns`}</button>` : '';
   }
 
   function renderPost(s) {
@@ -369,9 +323,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           ${tagsHtml(s.fm.labels)}
           <span id="toggle">${toggleHtml(s)}</span>
         </div>
-        <div id="controls">${controlsHtml(s)}</div>
       </header>
-      <nav class="outline" aria-label="Outline"><span class="lbl">In this session</span><ol id="outline"></ol></nav>
       <div class="win">
         <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
           <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span></div>
@@ -384,21 +336,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
         <dt>Source</dt><dd>${esc(s.path)}</dd>
       </dl>`;
 
-    // Outline: section headings inside golden replies, or the golden turns themselves when a reply has none.
-    const items = [];
-    app.querySelectorAll('.turn.golden.assistant').forEach(sec => {
-      const n = sec.id.split('-t').pop();
-      const hs = sec.querySelectorAll('.out h1, .out h2, .out h3');
-      if (!hs.length) { items.push(`<li><a href="#${sec.id}">${esc(clip(sec.querySelector('.out').textContent.trim(), 90))}</a><span class="t">turn ${n}</span></li>`); return; }
-      hs.forEach((h, i) => { h.id = `${sec.id}-h${i}`; items.push(`<li><a href="#${h.id}">${esc(h.textContent)}</a><span class="t">turn ${n}</span></li>`); });
-    });
-    document.getElementById('outline').innerHTML = items.join('');
     applyFolds();
     document.title = s.fm.title;
   }
 
   function applyFolds() { app.querySelectorAll('.fold').forEach(d => { d.open = showAll; }); }
-  function applyView() { document.querySelector('main.page').dataset.view = view; }
 
   // Sessions are hash routes, so report each one as its own page view.
   let lastTracked = null;
@@ -438,12 +380,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
-    const vb = e.target.closest('[data-view-btn]');
-    if (vb && s) { view = vb.dataset.viewBtn; applyView(); document.getElementById('controls').innerHTML = controlsHtml(s); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
   });
 
-  applyView();
   load().then(list => {
     sessions = list
       .sort((a, b) => new Date(b.fm.captured) - new Date(a.fm.captured));
