@@ -2,7 +2,7 @@
 // is fetched only when it is opened. Sessions listed in index.json show on the index; every other session file is
 // emitted with `unlisted: true`, so its #id link still opens while the index leaves it out.
 // Fails on a listed path that is missing or has no frontmatter; an unlisted file with broken frontmatter is skipped.
-// It also writes raw/<id>.md next to the output: each session's markdown without its frontmatter, a plain URL for agents.
+// It also writes <id>.md next to the output (the same id as the #<id> link): each session's markdown without its frontmatter, a plain URL for agents.
 // Usage: node tools/build-posts.mjs [out]   (npm install first, for js-yaml). tools/serve.mjs reuses buildPosts().
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -47,9 +47,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const out = process.argv[2] || 'posts.json';
   const posts = buildPosts();
   writeFileSync(out, JSON.stringify(posts) + '\n');
-  const rawDir = join(dirname(out), 'raw');
-  mkdirSync(rawDir, { recursive: true });
-  for (const p of posts) writeFileSync(join(rawDir, `${p.id}.md`), rawBody(p.path));
+  const dir = dirname(out);
+  mkdirSync(dir, { recursive: true });
+  for (const p of posts) writeFileSync(join(dir, `${p.id}.md`), rawBody(p.path));
   const hidden = posts.filter(p => p.unlisted).length;
-  console.log(`${out}: ${posts.length - hidden} listed, ${hidden} unlisted sessions, raw markdown in ${rawDir}/`);
+  console.log(`${out}: ${posts.length - hidden} listed, ${hidden} unlisted sessions, raw markdown as <id>.md`);
 }

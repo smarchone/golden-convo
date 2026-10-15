@@ -20,6 +20,6 @@ The index renders from `posts.json`, one small file with each listed session's t
 
 Preview locally with `npm install` once, then `npm run dev`, and open `http://localhost:8000`. It builds `posts.json` on every request, so the preview loads like the deployed site and picks up edits on reload. A plain `python3 -m http.server` also works, but without `posts.json` the page falls back to fetching every listed `.md` up front. The index shows only the sessions listed in `index.json`, so listing one means adding its path there. A session left out stays off the index but is still built into `posts.json` as `unlisted`, so its direct link (`#<id>`) opens; anyone with the link can read it, and the file is public in the repo either way.
 
-Agents can read a post as plain markdown at `raw/<id>.md` (for example `https://smarchone.github.io/golden-convo/raw/2026-10-15-storyboard-as-a-new-medium-abstract-stories-dire.md`): the turns only, without frontmatter, built at deploy time for every session, listed or not. The hash link is for browsers, because a server never sees the `#id`.
+Agents can read a post as plain markdown at `<id>.md`, the browser link without the `#` and with `.md` added (for example `https://smarchone.github.io/golden-convo/2026-10-15-storyboard-as-a-new-medium-abstract-stories-dire.md`): the turns only, without frontmatter, built at deploy time for every session, listed or not. A server never sees what follows a `#`, so the browser link can't return markdown itself.
 
 `.nojekyll` stops GitHub Pages from converting the `.md` files to HTML.
