@@ -28,7 +28,7 @@
 html, body { background:var(--bg); color:var(--fg); margin:0; }
 body { font:15px/1.65 var(--sans); padding-inline:16px; padding-block:56px 48px; -webkit-font-smoothing:antialiased;
        background:radial-gradient(900px 420px at 50% -120px, rgba(222,138,104,.10), transparent 70%) no-repeat, var(--bg); }
-main.page { max-width:860px; margin:0 auto; }
+main.page { max-width:762px; margin:0 auto; }
 a { color:inherit; }
 a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
 
@@ -61,7 +61,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .why { color:var(--dim); font-size:14px; line-height:1.6; margin:0; }
 .post-head .why::before { content:"why · "; font:11px var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
 .meta { display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; font:12px var(--mono); color:var(--dim); font-variant-numeric:tabular-nums; margin-top:4px; }
-.gold-count { color:var(--accent); }
 .status { color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-size:11px; }
 .tags { display:flex; flex-wrap:wrap; gap:6px; }
 .tag { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer; border:1px solid var(--line); border-radius:999px; padding:6px 10px; transition:color .15s, border-color .15s; }
@@ -94,8 +93,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .turn-label { display:flex; gap:10px; align-items:center; font:11px/1 var(--mono); color:var(--faint); margin:0 0 8px; }
 .turn-label a { text-decoration:none; } .turn-label a:hover { color:var(--dim); }
 .golden-chip { color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
-.turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
-               background:linear-gradient(90deg, var(--accent-soft), transparent 70%); }
+.expanded .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
+                         background:linear-gradient(90deg, var(--accent-soft), transparent 70%); }
 .turn.golden.assistant { padding-block:10px 4px; }
 
 .prompt { color:var(--white); overflow-wrap:anywhere; }
@@ -129,7 +128,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 @media (max-width:600px) {
   body { padding-block:28px 40px; }
   .screen { padding:16px 14px 24px; font-size:10.8px; }
-  .turn.golden { margin-left:-14px; padding-left:12px; }
+  .expanded .turn.golden { margin-left:-14px; padding-left:12px; }
   .title, .hint, .bar .model { display:none; }
   .flow a.how { margin-left:0; width:100%; }
 }
@@ -137,9 +136,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 
 /* fold toggle */
 .fold-toggle { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
-  border:1px solid var(--faint); border-radius:6px; padding:7px 11px; background:rgba(255,255,255,.06); transition:color .15s, border-color .15s; }
-#toggle:not(:empty) { display:inline-flex; align-items:center; gap:14px; }
-#toggle:not(:empty)::after { content:""; width:1px; height:18px; background:var(--line); }
+  border:1px solid var(--faint); border-radius:999px; padding:7px 11px; background:rgba(255,255,255,.06); transition:color .15s, border-color .15s; }
+/* post header: tags on their own line, single row, "…" when they don't all fit */
+.post-head .meta .tags { display:block; flex:0 0 100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.post-head .meta .tag { display:inline-block; margin-right:6px; }
 .fold-toggle::before { content:"\25B8  "; }
 .fold-toggle[aria-pressed="true"]::before { content:"\25BE  "; }
 .fold-toggle:hover { color:var(--fg); border-color:var(--faint); }
@@ -262,7 +262,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
             <p class="why">${esc(s.fm.why)}</p>
             <div class="meta">
               <span>${fmtDate(s.fm.captured)}</span>
-              <span class="gold-count">${(s.fm.golden_turns || []).length} golden</span>
               ${tagsHtml(s.fm.labels)}
             </div>
           </li>`).join('')}
@@ -344,7 +343,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     document.title = s.fm.title;
   }
 
-  function applyFolds() { app.querySelectorAll('.fold').forEach(d => { d.open = showAll; }); }
+  function applyFolds() {
+    app.querySelectorAll('.fold').forEach(d => { d.open = showAll; });
+    app.querySelector('.screen')?.classList.toggle('expanded', showAll);
+  }
 
   // Sessions are hash routes, so report each one as its own page view.
   let lastTracked = null;
