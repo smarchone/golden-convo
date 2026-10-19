@@ -86,7 +86,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .dots { display:flex; gap:7px; } .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
 .title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
-.screen { padding:18px 20px 26px; font:13px/1.7 var(--mono); }
+.screen { padding:18px 20px 26px; font:11.7px/1.7 var(--mono); }
 
 .turn { position:relative; scroll-margin-top:16px; }
 .turn + .turn.user { margin-top:26px; padding-top:18px; border-top:1px dashed var(--line); }
@@ -128,7 +128,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 
 @media (max-width:600px) {
   body { padding-block:28px 40px; }
-  .screen { padding:16px 14px 24px; font-size:12px; }
+  .screen { padding:16px 14px 24px; font-size:10.8px; }
   .turn.golden { margin-left:-14px; padding-left:12px; }
   .title, .hint, .bar .model { display:none; }
   .flow a.how { margin-left:0; width:100%; }
@@ -137,7 +137,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 
 /* fold toggle */
 .fold-toggle { font:12px/1 var(--mono); color:var(--dim); background:transparent; cursor:pointer;
-  border:1px solid var(--line); border-radius:999px; padding:8px 12px; transition:color .15s, border-color .15s; }
+  border:1px solid var(--faint); border-radius:6px; padding:7px 11px; background:rgba(255,255,255,.06); transition:color .15s, border-color .15s; }
+#toggle:not(:empty) { display:inline-flex; align-items:center; gap:14px; }
+#toggle:not(:empty)::after { content:""; width:1px; height:18px; background:var(--line); }
+.fold-toggle::before { content:"\25B8  "; }
+.fold-toggle[aria-pressed="true"]::before { content:"\25BE  "; }
 .fold-toggle:hover { color:var(--fg); border-color:var(--faint); }
 .fold-toggle[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
 
@@ -317,11 +321,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
         <h1>${esc(s.fm.title)}</h1>
         <p class="why">${esc(s.fm.why)}</p>
         <div class="meta">
-          <span>${fmtDate(s.fm.captured)}</span><span>${s.fm.turns} turns</span>
+          <span>${fmtDate(s.fm.captured)}</span>
           <span>${esc(s.fm.mode || '')}</span>
           ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
-          ${tagsHtml(s.fm.labels)}
           <span id="toggle">${toggleHtml(s)}</span>
+          ${tagsHtml(s.fm.labels)}
         </div>
       </header>
       <div class="win">
