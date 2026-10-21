@@ -404,12 +404,13 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     return `<div class="deck">
       <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous">←</button>
       <span>${slideIdx + 1} / ${n}</span>
-      <button data-step="1" ${slideIdx === n - 1 ? 'disabled' : ''} aria-label="Next">→</button></div>
+      <button data-step="1" ${slideIdx === n - 1 ? 'disabled' : ''} aria-label="Next">→</button>
+      <button data-exit title="Back to the full transcript (esc)">exit</button></div>
       <i class="prog" style="width:${(slideIdx + 1) / n * 100}%"></i>`;
   }
 
   // Reveal an element's text a few characters at a time; finish() shows the rest at once.
-  function typeInto(root) {
+  function typeInto(root, pause) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     for (let n; (n = walker.nextNode());) {
@@ -421,13 +422,15 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const per = Math.max(2, Math.ceil(total / 220));
     const caret = document.createElement('span'); caret.className = 'caret';
     nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
-    let i = 0, ch = 0, timer;
+    const turn = root.closest('.turn');
+    let i = 0, ch = 0, timer, wait;
+    turn.style.visibility = 'hidden';
     const finish = () => {
-      clearInterval(timer); caret.remove();
+      clearTimeout(wait); clearInterval(timer); caret.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
       typing = null;
     };
-    timer = setInterval(() => {
+    const run = () => timer = setInterval(() => {
       let budget = per;
       while (budget > 0 && i < nodes.length) {
         const x = nodes[i];
@@ -440,6 +443,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       }
       if (i >= nodes.length) finish();
     }, 16);
+    wait = setTimeout(() => { turn.style.visibility = ''; run(); }, pause);
     typing = { finish };
   }
 
@@ -454,7 +458,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     win.insertAdjacentHTML('beforeend', deckHtml(s));
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply);
+    if (animate && reply && !reduceMotion.matches) typeInto(reply, 3000);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
     if (push) win.scrollIntoView({ block: 'center' });
   }
@@ -538,6 +542,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const s = sessions.find(x => x.id === app.dataset.current);
     if (s && e.target.closest('[data-slide]')) {
       showSlide(s, 0, true, true); return; }
+    if (s && e.target.closest('[data-exit]')) { exitSlide(s); return; }
     const step = e.target.closest('[data-step]');
     if (s && step) { advance(s, +step.dataset.step); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
