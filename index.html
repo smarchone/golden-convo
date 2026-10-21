@@ -167,22 +167,24 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .slide-btn::before { content:"\25B6  "; font-size:9px; }
 .agent-link { font:12px/1 var(--mono); color:var(--faint); text-decoration:none; overflow-wrap:anywhere; }
 .agent-link:hover { color:var(--accent); }
-.stage { min-height:min(52vh, 420px); animation:step .18s ease-out; }
+/* fixed-size terminal: the window never resizes, long turns scroll inside it */
+.win.sliding { display:flex; flex-direction:column; height:clamp(440px, 80vh, 820px); }
+.win.sliding .screen { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
 .stage .turn { margin:0; padding:0; border:0; }
+.stage .turn.assistant { margin-top:18px; }
 .stage .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
                       background:linear-gradient(90deg, var(--accent-soft), transparent 70%); padding-block:10px 4px; }
-.stage .ctx { display:block; }
-.stage .out { font-size:13px; }
-.stage .prompt { font-size:13px; }
-.stage .out pre { max-height:46vh; overflow:auto; }
-@keyframes step { from { opacity:0; transform:translateY(4px); } }
-@media (prefers-reduced-motion: reduce) { .stage { animation:none; } }
-.deck { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:18px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; }
+.stage .out, .stage .prompt { font-size:13px; }
+.caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity:0; } }
+@media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
+.deck { display:flex; align-items:center; justify-content:center; gap:14px; padding:2px 0 4px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; border-top:1px solid var(--line); }
 .deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
 .deck button:hover:not(:disabled) { color:var(--accent); }
 .deck button:disabled { opacity:.25; cursor:default; }
 .prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; transition:width .18s; }
 .win { position:relative; }
+@media (max-width:600px) { .stage .turn.golden { margin-left:-14px; padding-left:12px; } .win.sliding { height:calc(100dvh - 150px); min-height:380px; } }
 
 .status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
 
@@ -384,51 +386,110 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
   }
 
-  // Slide mode: the transcript one turn at a time. Deep link: #<id>-t<N>/slide
-  let slideIdx = -1;
+  // Slide mode: the transcript a step at a time, a step being a prompt and its reply. Deep link: #<id>-t<N>/slide
+  let slideIdx = -1, typing = null;
   const SLIDE = /\/slide$/;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const stepsOf = s => s.steps || (s.steps = s.turns.reduce((out, t) => {
+    const last = out[out.length - 1];
+    if (t.role === 'assistant' && last && last.length === 1 && last[0].role === 'user') last.push(t); else out.push([t]);
+    return out;
+  }, []));
+
   function slideHtml(s) {
-    const t = s.turns[slideIdx], golden = (s.fm.golden_turns || []).includes(t.n);
-    const prev = s.turns[slideIdx - 1];
-    const ctx = t.role === 'assistant' && prev && prev.role === 'user' ? plain(prev.text) : '';
-    const last = s.turns.length - 1;
-    return `<div class="stage">${turnHtml(s, t, golden, ctx)}</div>
-      <div class="deck">
-        <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous turn">←</button>
-        <span>${t.n} / ${s.turns[last].n}</span>
-        <button data-step="1" ${slideIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>
-      <i class="prog" style="width:${(slideIdx + 1) / s.turns.length * 100}%"></i>`;
+    const steps = stepsOf(s), golden = s.fm.golden_turns || [];
+    return `<div class="stage">${steps[slideIdx].map(t => turnHtml(s, t, golden.includes(t.n))).join('')}</div>`;
   }
-  function showSlide(s, i, push) {
-    slideIdx = Math.max(0, Math.min(s.turns.length - 1, i));
-    const win = app.querySelector('.screen');
-    win.classList.remove('expanded'); win.classList.add('sliding');
-    win.innerHTML = slideHtml(s);
-    const url = '#' + s.id + '-t' + s.turns[slideIdx].n + '/slide';
-    history[push ? 'pushState' : 'replaceState'](null, '', url);
-    app.querySelector('.win').scrollIntoView({ block: 'nearest' });
+  function deckHtml(s) {
+    const n = stepsOf(s).length;
+    return `<div class="deck">
+      <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous">←</button>
+      <span>${slideIdx + 1} / ${n}</span>
+      <button data-step="1" ${slideIdx === n - 1 ? 'disabled' : ''} aria-label="Next">→</button></div>
+      <i class="prog" style="width:${(slideIdx + 1) / n * 100}%"></i>`;
+  }
+
+  // Reveal an element's text a few characters at a time; finish() shows the rest at once.
+  function typeInto(root, scroller) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    for (let n; (n = walker.nextNode());) {
+      if (!n.nodeValue.trim()) continue;
+      const block = n.parentElement.closest('p, li, pre, tr, h1, h2, h3, h4, blockquote') || root;
+      nodes.push({ n, full: n.nodeValue, block });
+    }
+    const total = nodes.reduce((a, x) => a + x.full.length, 0);
+    const per = Math.max(2, Math.ceil(total / 220));
+    const caret = document.createElement('span'); caret.className = 'caret';
+    nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
+    let i = 0, ch = 0, timer;
+    const finish = () => {
+      clearInterval(timer); caret.remove();
+      nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
+      typing = null;
+    };
+    timer = setInterval(() => {
+      const follow = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 48;
+      let budget = per;
+      while (budget > 0 && i < nodes.length) {
+        const x = nodes[i];
+        x.block.style.display = '';
+        const take = Math.min(budget, x.full.length - ch);
+        ch += take; budget -= take;
+        x.n.nodeValue = x.full.slice(0, ch);
+        x.n.after(caret);
+        if (ch >= x.full.length) { i++; ch = 0; }
+      }
+      if (follow) scroller.scrollTop = scroller.scrollHeight;
+      if (i >= nodes.length) finish();
+    }, 16);
+    typing = { finish };
+  }
+
+  function showSlide(s, i, push, animate) {
+    typing?.finish();
+    const steps = stepsOf(s);
+    slideIdx = Math.max(0, Math.min(steps.length - 1, i));
+    const win = app.querySelector('.win'), screen = win.querySelector('.screen');
+    win.classList.add('sliding'); screen.classList.remove('expanded');
+    screen.innerHTML = slideHtml(s);
+    screen.scrollTop = 0;
+    win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
+    win.insertAdjacentHTML('beforeend', deckHtml(s));
+    const reply = screen.querySelector('.out');
+    if (animate && reply && !reduceMotion.matches) typeInto(reply, screen);
+    history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
+    if (push) win.scrollIntoView({ block: 'center' });
   }
   function exitSlide(s) {
     if (slideIdx < 0) return;
-    const n = s.turns[slideIdx].n;
+    typing?.finish();
+    const n = stepsOf(s)[slideIdx][0].n;
     slideIdx = -1;
-    const win = app.querySelector('.screen');
+    const win = app.querySelector('.win'), screen = win.querySelector('.screen');
     win.classList.remove('sliding');
-    win.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
+    win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
+    screen.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
     applyFolds();
     history.replaceState(null, '', '#' + s.id + '-t' + n);
     const el = document.getElementById(s.id + '-t' + n);
     if (el) { const f = el.closest('.fold'); if (f) f.open = true; el.scrollIntoView({ block: 'center' }); }
+  }
+  // → finishes a reply that is still typing; pressed again it moves on.
+  function advance(s, d) {
+    if (d > 0 && typing) { typing.finish(); return; }
+    showSlide(s, slideIdx + d, false, d > 0);
   }
   const curSession = () => sessions.find(x => x.id === app.dataset.current);
   document.addEventListener('keydown', e => {
     const s = curSession();
     if (!s || slideIdx < 0 || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const k = e.key;
-    if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) showSlide(s, slideIdx + 1);
-    else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) showSlide(s, slideIdx - 1);
+    if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) advance(s, 1);
+    else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) advance(s, -1);
     else if (k === 'Home') showSlide(s, 0);
-    else if (k === 'End') showSlide(s, s.turns.length - 1);
+    else if (k === 'End') showSlide(s, stepsOf(s).length - 1);
     else if (k === 'Escape') exitSlide(s);
     else return;
     e.preventDefault();
@@ -439,7 +500,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const s = curSession();
     if (touchX == null || !s) return;
     const dx = e.changedTouches[0].clientX - touchX; touchX = null;
-    if (Math.abs(dx) > 60) showSlide(s, slideIdx + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 60) advance(s, dx < 0 ? 1 : -1);
   });
 
   async function route() {
@@ -460,7 +521,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
         showAll = false; slideIdx = -1; renderPost(s); app.dataset.current = s.id;
       }
       if (slide) {
-        const m = h.match(/-t(\d+)$/), i = m ? s.turns.findIndex(t => t.n === +m[1]) : 0;
+        const m = h.match(/-t(\d+)$/), i = m ? stepsOf(s).findIndex(st => st.some(t => t.n === +m[1])) : 0;
         showSlide(s, i < 0 ? 0 : i, false); return;
       }
       if (slideIdx >= 0) { slideIdx = -1; renderPost(s); }
@@ -479,9 +540,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
     if (s && e.target.closest('[data-slide]')) {
-      showSlide(s, 0, true); return; }
+      showSlide(s, 0, true, true); return; }
     const step = e.target.closest('[data-step]');
-    if (s && step) { showSlide(s, slideIdx + +step.dataset.step); return; }
+    if (s && step) { advance(s, +step.dataset.step); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
   });
 
