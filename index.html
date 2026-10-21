@@ -413,7 +413,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   // Reveal an element's text a few characters at a time; finish() shows the rest at once.
-  function typeInto(root, pause) {
+  function typeInto(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     for (let n; (n = walker.nextNode());) {
@@ -427,11 +427,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
     const turn = root.closest('.turn');
     const prompt = root.closest('.stage').querySelector('.prompt');
-    let i = 0, ch = 0, timer, wait;
+    let i = 0, ch = 0, timer;
     turn.style.visibility = 'hidden';
     if (prompt) (prompt.lastElementChild || prompt).append(caret);
     const finish = () => {
-      clearTimeout(wait); clearInterval(timer); caret.remove(); turn.style.visibility = '';
+      clearInterval(timer); caret.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
       typing = null;
     };
@@ -448,10 +448,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       }
       if (i >= nodes.length) finish();
     }, 16); };
-    // The caret blinks after the prompt through the pause; skip() ends the pause first, then the typing.
+    // The caret blinks after the prompt until → starts the typing; → again finishes it.
     let paused = true;
-    const skip = () => { if (paused) { paused = false; clearTimeout(wait); run(); } else finish(); };
-    wait = setTimeout(() => { paused = false; run(); }, pause);
+    const skip = () => { if (paused) { paused = false; run(); } else finish(); };
     typing = { finish, skip };
   }
 
@@ -466,7 +465,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     win.insertAdjacentHTML('beforeend', deckHtml(s));
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply, 2000);
+    if (animate && reply && !reduceMotion.matches) typeInto(reply);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
     syncView();
     if (push) win.scrollIntoView({ block: 'center' });
@@ -496,7 +495,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     app.querySelector('.post-head').dataset.viewing = sliding ? 'slide' : 'normal';
     app.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === (sliding ? 'slide' : 'normal'))));
   }
-  // → ends the pause before a reply, then finishes its typing; pressed again it moves on.
+  // → starts a reply typing, then finishes it; pressed again it moves on.
   function advance(s, d) {
     if (d > 0 && typing) { typing.skip(); return; }
     if (slideIdx + d < 0 || slideIdx + d >= stepsOf(s).length) return;
