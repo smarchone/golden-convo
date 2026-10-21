@@ -172,8 +172,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .win.sliding .screen { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
 .stage .turn { margin:0; padding:0; border:0; }
 .stage .turn.assistant { margin-top:18px; }
-.stage .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
-                      background:linear-gradient(90deg, var(--accent-soft), transparent 70%); padding-block:10px 4px; }
 .stage .out, .stage .prompt { font-size:13px; }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity:0; } }
@@ -184,7 +182,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .deck button:disabled { opacity:.25; cursor:default; }
 .prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; transition:width .18s; }
 .win { position:relative; }
-@media (max-width:600px) { .stage .turn.golden { margin-left:-14px; padding-left:12px; } .win.sliding { height:calc(100dvh - 150px); min-height:380px; } }
+@media (max-width:600px) { .win.sliding { height:calc(100dvh - 150px); min-height:380px; } }
 
 .status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
 
@@ -398,8 +396,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }, []));
 
   function slideHtml(s) {
-    const steps = stepsOf(s), golden = s.fm.golden_turns || [];
-    return `<div class="stage">${steps[slideIdx].map(t => turnHtml(s, t, golden.includes(t.n))).join('')}</div>`;
+    const steps = stepsOf(s);
+    return `<div class="stage">${steps[slideIdx].map(t => turnHtml(s, t, false)).join('')}</div>`;
   }
   function deckHtml(s) {
     const n = stepsOf(s).length;
@@ -411,7 +409,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   // Reveal an element's text a few characters at a time; finish() shows the rest at once.
-  function typeInto(root, scroller) {
+  function typeInto(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     for (let n; (n = walker.nextNode());) {
@@ -430,7 +428,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       typing = null;
     };
     timer = setInterval(() => {
-      const follow = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 48;
       let budget = per;
       while (budget > 0 && i < nodes.length) {
         const x = nodes[i];
@@ -441,7 +438,6 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
         x.n.after(caret);
         if (ch >= x.full.length) { i++; ch = 0; }
       }
-      if (follow) scroller.scrollTop = scroller.scrollHeight;
       if (i >= nodes.length) finish();
     }, 16);
     typing = { finish };
@@ -458,7 +454,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     win.insertAdjacentHTML('beforeend', deckHtml(s));
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply, screen);
+    if (animate && reply && !reduceMotion.matches) typeInto(reply);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
     if (push) win.scrollIntoView({ block: 'center' });
   }
@@ -479,6 +475,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   // → finishes a reply that is still typing; pressed again it moves on.
   function advance(s, d) {
     if (d > 0 && typing) { typing.finish(); return; }
+    if (slideIdx + d < 0 || slideIdx + d >= stepsOf(s).length) return;
     showSlide(s, slideIdx + d, false, d > 0);
   }
   const curSession = () => sessions.find(x => x.id === app.dataset.current);
