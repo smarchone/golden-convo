@@ -79,7 +79,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .post-head h1 { margin:0; font:700 clamp(24px, 4vw, 34px)/1.1 var(--sans); color:var(--white); letter-spacing:-.03em; text-wrap:balance; }
 .post-head .why { font-size:15px; }
 
-.win { background:var(--win); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+.win { background:var(--win); border:1px solid var(--line); border-radius:14px; overflow:clip;
        box-shadow:0 30px 80px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.02) inset; }
 .bar { display:flex; align-items:center; gap:12px; height:40px; padding:0 14px; background:var(--bar); border-bottom:1px solid var(--line); }
 .dots { display:flex; gap:7px; } .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
@@ -158,6 +158,31 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .ctx { font:12px/1.5 var(--mono); color:var(--dim); margin:0 0 10px; padding-left:20px; overflow-wrap:anywhere; }
 .ctx b { color:var(--faint); font-weight:400; }
 .fold[open] + .turn .ctx { display:none; }
+
+
+/* slide mode: one turn at a time, ←/→ to step */
+.slide-btn { font:12px/1 var(--mono); color:var(--accent); background:var(--accent-soft); cursor:pointer;
+  border:1px solid var(--accent-line); border-radius:999px; padding:7px 11px; transition:border-color .15s; }
+.slide-btn:hover { border-color:var(--accent); }
+.slide-btn::before { content:"\25B6  "; font-size:9px; }
+.agent-link { font:12px/1 var(--mono); color:var(--faint); text-decoration:none; overflow-wrap:anywhere; }
+.agent-link:hover { color:var(--accent); }
+.stage { min-height:min(52vh, 420px); animation:step .18s ease-out; }
+.stage .turn { margin:0; padding:0; border:0; }
+.stage .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
+                      background:linear-gradient(90deg, var(--accent-soft), transparent 70%); padding-block:10px 4px; }
+.stage .ctx { display:block; }
+.stage .out { font-size:13px; }
+.stage .prompt { font-size:13px; }
+.stage .out pre { max-height:46vh; overflow:auto; }
+@keyframes step { from { opacity:0; transform:translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .stage { animation:none; } }
+.deck { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:18px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; }
+.deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
+.deck button:hover:not(:disabled) { color:var(--accent); }
+.deck button:disabled { opacity:.25; cursor:default; }
+.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; transition:width .18s; }
+.win { position:relative; }
 
 .status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
 
@@ -323,6 +348,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           <span>${fmtDate(s.fm.captured)}</span>
           <span>${esc(s.fm.mode || '')}</span>
           ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
+          <button class="slide-btn" data-slide>Slide mode</button>
+          <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
           <span id="toggle">${toggleHtml(s)}</span>
           ${tagsHtml(s.fm.labels)}
         </div>
@@ -357,8 +384,68 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
   }
 
+  // Slide mode: the transcript one turn at a time. Deep link: #<id>-t<N>/slide
+  let slideIdx = -1;
+  const SLIDE = /\/slide$/;
+  function slideHtml(s) {
+    const t = s.turns[slideIdx], golden = (s.fm.golden_turns || []).includes(t.n);
+    const prev = s.turns[slideIdx - 1];
+    const ctx = t.role === 'assistant' && prev && prev.role === 'user' ? plain(prev.text) : '';
+    const last = s.turns.length - 1;
+    return `<div class="stage">${turnHtml(s, t, golden, ctx)}</div>
+      <div class="deck">
+        <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous turn">←</button>
+        <span>${t.n} / ${s.turns[last].n}</span>
+        <button data-step="1" ${slideIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>
+      <i class="prog" style="width:${(slideIdx + 1) / s.turns.length * 100}%"></i>`;
+  }
+  function showSlide(s, i, push) {
+    slideIdx = Math.max(0, Math.min(s.turns.length - 1, i));
+    const win = app.querySelector('.screen');
+    win.classList.remove('expanded'); win.classList.add('sliding');
+    win.innerHTML = slideHtml(s);
+    const url = '#' + s.id + '-t' + s.turns[slideIdx].n + '/slide';
+    history[push ? 'pushState' : 'replaceState'](null, '', url);
+    app.querySelector('.win').scrollIntoView({ block: 'nearest' });
+  }
+  function exitSlide(s) {
+    if (slideIdx < 0) return;
+    const n = s.turns[slideIdx].n;
+    slideIdx = -1;
+    const win = app.querySelector('.screen');
+    win.classList.remove('sliding');
+    win.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
+    applyFolds();
+    history.replaceState(null, '', '#' + s.id + '-t' + n);
+    const el = document.getElementById(s.id + '-t' + n);
+    if (el) { const f = el.closest('.fold'); if (f) f.open = true; el.scrollIntoView({ block: 'center' }); }
+  }
+  const curSession = () => sessions.find(x => x.id === app.dataset.current);
+  document.addEventListener('keydown', e => {
+    const s = curSession();
+    if (!s || slideIdx < 0 || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) showSlide(s, slideIdx + 1);
+    else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) showSlide(s, slideIdx - 1);
+    else if (k === 'Home') showSlide(s, 0);
+    else if (k === 'End') showSlide(s, s.turns.length - 1);
+    else if (k === 'Escape') exitSlide(s);
+    else return;
+    e.preventDefault();
+  });
+  let touchX = null;
+  app.addEventListener('touchstart', e => { touchX = slideIdx >= 0 ? e.touches[0].clientX : null; }, { passive: true });
+  app.addEventListener('touchend', e => {
+    const s = curSession();
+    if (touchX == null || !s) return;
+    const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    if (Math.abs(dx) > 60) showSlide(s, slideIdx + (dx < 0 ? 1 : -1));
+  });
+
   async function route() {
-    const h = location.hash.slice(1);
+    let h = location.hash.slice(1);
+    const slide = SLIDE.test(h);
+    h = h.replace(SLIDE, '');
     const s = h && sessions.find(x => h === x.id || h.startsWith(x.id + '-t'));
     track(s);
     if (s) {
@@ -368,10 +455,15 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           app.innerHTML = '<p class="status-msg">Loading session…</p>';
           try { await full(s); }
           catch (err) { app.innerHTML = `<p class="status-msg">Couldn't load ${esc(err.message)}. Try reloading.</p>`; app.dataset.current = ''; return; }
-          if (location.hash.slice(1) !== h) return; // navigated away while loading
+          if (location.hash.slice(1).replace(SLIDE, '') !== h) return; // navigated away while loading
         }
-        showAll = false; renderPost(s); app.dataset.current = s.id;
+        showAll = false; slideIdx = -1; renderPost(s); app.dataset.current = s.id;
       }
+      if (slide) {
+        const m = h.match(/-t(\d+)$/), i = m ? s.turns.findIndex(t => t.n === +m[1]) : 0;
+        showSlide(s, i < 0 ? 0 : i, false); return;
+      }
+      if (slideIdx >= 0) { slideIdx = -1; renderPost(s); }
       const el = h !== s.id && document.getElementById(h);
       if (el) { const fold = el.closest('.fold'); if (fold) fold.open = true; el.scrollIntoView({ block: 'start' }); }
       else if (!same) window.scrollTo(0, 0);
@@ -386,6 +478,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
+    if (s && e.target.closest('[data-slide]')) {
+      showSlide(s, 0, true); return; }
+    const step = e.target.closest('[data-step]');
+    if (s && step) { showSlide(s, slideIdx + +step.dataset.step); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
   });
 
