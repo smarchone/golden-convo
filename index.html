@@ -177,16 +177,12 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .stage .out pre { max-height:46vh; overflow:auto; }
 @keyframes step { from { opacity:0; transform:translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { .stage { animation:none; } }
-.screen.sliding { padding-bottom:0; }
-.deck { margin:22px -20px 0; position:sticky; bottom:0; z-index:2; display:flex; align-items:center; gap:10px; padding:10px 14px;
-  background:var(--bar); border-top:1px solid var(--line); font:12px var(--mono); color:var(--dim); }
-.deck button { font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer; }
-.deck button:hover:not(:disabled) { border-color:var(--faint); color:var(--white); }
-.deck button:disabled { opacity:.35; cursor:default; }
-.deck .pos { flex:1; text-align:center; font-variant-numeric:tabular-nums; }
-.deck .bar2 { position:absolute; left:0; top:-1px; height:2px; background:var(--accent); transition:width .18s; }
-.deck .keys { color:var(--faint); }
-@media (max-width:600px) { .deck { margin-inline:-14px; } .deck .keys { display:none; } .stage .turn.golden { margin-left:-14px; padding-left:12px; } }
+.deck { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:18px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; }
+.deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
+.deck button:hover:not(:disabled) { color:var(--accent); }
+.deck button:disabled { opacity:.25; cursor:default; }
+.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; transition:width .18s; }
+.win { position:relative; }
 
 .status-msg { font:13px var(--mono); color:var(--dim); border:1px dashed var(--line); border-radius:10px; padding:14px 16px; }
 
@@ -397,11 +393,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const ctx = t.role === 'assistant' && prev && prev.role === 'user' ? plain(prev.text) : '';
     const last = s.turns.length - 1;
     return `<div class="stage">${turnHtml(s, t, golden, ctx)}</div>
-      <div class="deck"><i class="bar2" style="width:${(slideIdx + 1) / s.turns.length * 100}%"></i>
+      <div class="deck">
         <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous turn">←</button>
-        <span class="pos">${t.n} / ${s.turns[last].n}</span>
-        <span class="keys">←/→ step · esc exit</span>
-        <button data-step="1" ${slideIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>`;
+        <span>${t.n} / ${s.turns[last].n}</span>
+        <button data-step="1" ${slideIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>
+      <i class="prog" style="width:${(slideIdx + 1) / s.turns.length * 100}%"></i>`;
   }
   function showSlide(s, i, push) {
     slideIdx = Math.max(0, Math.min(s.turns.length - 1, i));
