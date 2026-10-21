@@ -161,10 +161,12 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 
 
 /* slide mode: one turn at a time, ←/→ to step */
-.slide-btn { font:12px/1 var(--mono); color:var(--accent); background:var(--accent-soft); cursor:pointer;
-  border:1px solid var(--accent-line); border-radius:999px; padding:7px 11px; transition:border-color .15s; }
-.slide-btn:hover { border-color:var(--accent); }
-.slide-btn::before { content:"\25B6  "; font-size:9px; }
+.view-ctl { display:flex; align-items:center; gap:10px; }
+.seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+.seg button { font:12px/1 var(--mono); color:var(--dim); background:transparent; border:0; padding:7px 12px; cursor:pointer; transition:color .15s; }
+.seg button:hover { color:var(--fg); }
+.seg button[aria-pressed="true"] { color:var(--accent); background:var(--accent-soft); }
+.post-head[data-viewing="slide"] #toggle { display:none; }
 .agent-link { font:12px/1 var(--mono); color:var(--faint); text-decoration:none; overflow-wrap:anywhere; }
 .agent-link:hover { color:var(--accent); }
 /* fixed-size terminal: the window never resizes, long turns scroll inside it */
@@ -348,9 +350,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           <span>${fmtDate(s.fm.captured)}</span>
           <span>${esc(s.fm.mode || '')}</span>
           ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
-          <button class="slide-btn" data-slide>Slide mode</button>
+          <span class="view-ctl">
+            <span class="seg" role="group" aria-label="View"><button data-view="normal" aria-pressed="true">Normal</button><button data-view="slide" aria-pressed="false">Slide</button></span>
+            <span id="toggle">${toggleHtml(s)}</span>
+          </span>
           <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
-          <span id="toggle">${toggleHtml(s)}</span>
           ${tagsHtml(s.fm.labels)}
         </div>
       </header>
@@ -409,7 +413,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   }
 
   // Reveal an element's text a few characters at a time; finish() shows the rest at once.
-  function typeInto(root) {
+  function typeInto(root, pause) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     for (let n; (n = walker.nextNode());) {
@@ -421,13 +425,15 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const per = Math.max(2, Math.ceil(total / 220));
     const caret = document.createElement('span'); caret.className = 'caret';
     nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
-    let i = 0, ch = 0, timer;
+    const turn = root.closest('.turn');
+    let i = 0, ch = 0, timer, wait;
+    turn.style.visibility = 'hidden';
     const finish = () => {
-      clearInterval(timer); caret.remove();
+      clearTimeout(wait); clearInterval(timer); caret.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
       typing = null;
     };
-    timer = setInterval(() => {
+    const run = () => timer = setInterval(() => {
       let budget = per;
       while (budget > 0 && i < nodes.length) {
         const x = nodes[i];
@@ -440,6 +446,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       }
       if (i >= nodes.length) finish();
     }, 16);
+    wait = setTimeout(() => { turn.style.visibility = ''; run(); }, pause);
     typing = { finish };
   }
 
@@ -454,8 +461,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     win.insertAdjacentHTML('beforeend', deckHtml(s));
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply);
+    if (animate && reply && !reduceMotion.matches) typeInto(reply, 3000);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
+    syncView();
     if (push) win.scrollIntoView({ block: 'center' });
   }
   function exitSlide(s) {
@@ -467,10 +475,21 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.classList.remove('sliding');
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     screen.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
-    applyFolds();
+    applyFolds(); syncView();
     history.replaceState(null, '', '#' + s.id + '-t' + n);
     const el = document.getElementById(s.id + '-t' + n);
     if (el) { const f = el.closest('.fold'); if (f) f.open = true; el.scrollIntoView({ block: 'center' }); }
+  }
+  // The turn at the top of the screen in the normal view, so switching to slides keeps your place.
+  function visibleTurn(s) {
+    const turns = [...app.querySelectorAll('.screen .turn')].filter(el => el.offsetParent);
+    const top = turns.find(el => el.getBoundingClientRect().bottom > 80) || turns[turns.length - 1];
+    return top ? +top.id.match(/-t(\d+)$/)[1] : s.turns[0].n;
+  }
+  function syncView() {
+    const sliding = slideIdx >= 0;
+    app.querySelector('.post-head').dataset.viewing = sliding ? 'slide' : 'normal';
+    app.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === (sliding ? 'slide' : 'normal'))));
   }
   // → finishes a reply that is still typing; pressed again it moves on.
   function advance(s, d) {
@@ -536,8 +555,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
-    if (s && e.target.closest('[data-slide]')) {
-      showSlide(s, 0, true, true); return; }
+    const view = e.target.closest('[data-view]');
+    if (s && view) {
+      if (view.dataset.view === 'slide' && slideIdx < 0) { const n = visibleTurn(s); showSlide(s, Math.max(0, stepsOf(s).findIndex(st => st.some(t => t.n === n))), true, true); }
+      else if (view.dataset.view === 'normal') exitSlide(s);
+      return; }
     const step = e.target.closest('[data-step]');
     if (s && step) { advance(s, +step.dataset.step); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
