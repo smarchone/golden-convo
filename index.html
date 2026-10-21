@@ -160,11 +160,13 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .fold[open] + .turn .ctx { display:none; }
 
 
-/* reading play: one turn at a time, ←/→ to step */
-.play-btn { font:12px/1 var(--mono); color:var(--accent); background:var(--accent-soft); cursor:pointer;
+/* slide mode: one turn at a time, ←/→ to step */
+.slide-btn { font:12px/1 var(--mono); color:var(--accent); background:var(--accent-soft); cursor:pointer;
   border:1px solid var(--accent-line); border-radius:999px; padding:7px 11px; transition:border-color .15s; }
-.play-btn:hover { border-color:var(--accent); }
-.play-btn::before { content:"\25B6  "; font-size:9px; }
+.slide-btn:hover { border-color:var(--accent); }
+.slide-btn::before { content:"\25B6  "; font-size:9px; }
+.agent-link { font:12px/1 var(--mono); color:var(--faint); text-decoration:none; overflow-wrap:anywhere; }
+.agent-link:hover { color:var(--accent); }
 .stage { min-height:min(52vh, 420px); animation:step .18s ease-out; }
 .stage .turn { margin:0; padding:0; border:0; }
 .stage .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
@@ -175,7 +177,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .stage .out pre { max-height:46vh; overflow:auto; }
 @keyframes step { from { opacity:0; transform:translateY(4px); } }
 @media (prefers-reduced-motion: reduce) { .stage { animation:none; } }
-.screen.playing { padding-bottom:0; }
+.screen.sliding { padding-bottom:0; }
 .deck { margin:22px -20px 0; position:sticky; bottom:0; z-index:2; display:flex; align-items:center; gap:10px; padding:10px 14px;
   background:var(--bar); border-top:1px solid var(--line); font:12px var(--mono); color:var(--dim); }
 .deck button { font:inherit; color:var(--fg); background:transparent; border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer; }
@@ -350,7 +352,8 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           <span>${fmtDate(s.fm.captured)}</span>
           <span>${esc(s.fm.mode || '')}</span>
           ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
-          <button class="play-btn" data-play>Reading play</button>
+          <button class="slide-btn" data-slide>Slide mode</button>
+          <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
           <span id="toggle">${toggleHtml(s)}</span>
           ${tagsHtml(s.fm.labels)}
         </div>
@@ -385,36 +388,36 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
   }
 
-  // Reading play: the transcript one turn at a time. Deep link: #<id>-t<N>/play
-  let playIdx = -1;
-  const PLAY = /\/play$/;
-  function playHtml(s) {
-    const t = s.turns[playIdx], golden = (s.fm.golden_turns || []).includes(t.n);
-    const prev = s.turns[playIdx - 1];
+  // Slide mode: the transcript one turn at a time. Deep link: #<id>-t<N>/slide
+  let slideIdx = -1;
+  const SLIDE = /\/slide$/;
+  function slideHtml(s) {
+    const t = s.turns[slideIdx], golden = (s.fm.golden_turns || []).includes(t.n);
+    const prev = s.turns[slideIdx - 1];
     const ctx = t.role === 'assistant' && prev && prev.role === 'user' ? plain(prev.text) : '';
     const last = s.turns.length - 1;
     return `<div class="stage">${turnHtml(s, t, golden, ctx)}</div>
-      <div class="deck"><i class="bar2" style="width:${(playIdx + 1) / s.turns.length * 100}%"></i>
-        <button data-step="-1" ${playIdx === 0 ? 'disabled' : ''} aria-label="Previous turn">←</button>
+      <div class="deck"><i class="bar2" style="width:${(slideIdx + 1) / s.turns.length * 100}%"></i>
+        <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous turn">←</button>
         <span class="pos">${t.n} / ${s.turns[last].n}</span>
         <span class="keys">←/→ step · esc exit</span>
-        <button data-step="1" ${playIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>`;
+        <button data-step="1" ${slideIdx === last ? 'disabled' : ''} aria-label="Next turn">→</button></div>`;
   }
-  function showPlay(s, i, push) {
-    playIdx = Math.max(0, Math.min(s.turns.length - 1, i));
+  function showSlide(s, i, push) {
+    slideIdx = Math.max(0, Math.min(s.turns.length - 1, i));
     const win = app.querySelector('.screen');
-    win.classList.remove('expanded'); win.classList.add('playing');
-    win.innerHTML = playHtml(s);
-    const url = '#' + s.id + '-t' + s.turns[playIdx].n + '/play';
+    win.classList.remove('expanded'); win.classList.add('sliding');
+    win.innerHTML = slideHtml(s);
+    const url = '#' + s.id + '-t' + s.turns[slideIdx].n + '/slide';
     history[push ? 'pushState' : 'replaceState'](null, '', url);
     app.querySelector('.win').scrollIntoView({ block: 'nearest' });
   }
-  function exitPlay(s) {
-    if (playIdx < 0) return;
-    const n = s.turns[playIdx].n;
-    playIdx = -1;
+  function exitSlide(s) {
+    if (slideIdx < 0) return;
+    const n = s.turns[slideIdx].n;
+    slideIdx = -1;
     const win = app.querySelector('.screen');
-    win.classList.remove('playing');
+    win.classList.remove('sliding');
     win.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
     applyFolds();
     history.replaceState(null, '', '#' + s.id + '-t' + n);
@@ -424,29 +427,29 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
   const curSession = () => sessions.find(x => x.id === app.dataset.current);
   document.addEventListener('keydown', e => {
     const s = curSession();
-    if (!s || playIdx < 0 || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!s || slideIdx < 0 || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const k = e.key;
-    if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) showPlay(s, playIdx + 1);
-    else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) showPlay(s, playIdx - 1);
-    else if (k === 'Home') showPlay(s, 0);
-    else if (k === 'End') showPlay(s, s.turns.length - 1);
-    else if (k === 'Escape') exitPlay(s);
+    if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) showSlide(s, slideIdx + 1);
+    else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) showSlide(s, slideIdx - 1);
+    else if (k === 'Home') showSlide(s, 0);
+    else if (k === 'End') showSlide(s, s.turns.length - 1);
+    else if (k === 'Escape') exitSlide(s);
     else return;
     e.preventDefault();
   });
   let touchX = null;
-  app.addEventListener('touchstart', e => { touchX = playIdx >= 0 ? e.touches[0].clientX : null; }, { passive: true });
+  app.addEventListener('touchstart', e => { touchX = slideIdx >= 0 ? e.touches[0].clientX : null; }, { passive: true });
   app.addEventListener('touchend', e => {
     const s = curSession();
     if (touchX == null || !s) return;
     const dx = e.changedTouches[0].clientX - touchX; touchX = null;
-    if (Math.abs(dx) > 60) showPlay(s, playIdx + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 60) showSlide(s, slideIdx + (dx < 0 ? 1 : -1));
   });
 
   async function route() {
     let h = location.hash.slice(1);
-    const play = PLAY.test(h);
-    h = h.replace(PLAY, '');
+    const slide = SLIDE.test(h);
+    h = h.replace(SLIDE, '');
     const s = h && sessions.find(x => h === x.id || h.startsWith(x.id + '-t'));
     track(s);
     if (s) {
@@ -456,15 +459,15 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
           app.innerHTML = '<p class="status-msg">Loading session…</p>';
           try { await full(s); }
           catch (err) { app.innerHTML = `<p class="status-msg">Couldn't load ${esc(err.message)}. Try reloading.</p>`; app.dataset.current = ''; return; }
-          if (location.hash.slice(1).replace(PLAY, '') !== h) return; // navigated away while loading
+          if (location.hash.slice(1).replace(SLIDE, '') !== h) return; // navigated away while loading
         }
-        showAll = false; playIdx = -1; renderPost(s); app.dataset.current = s.id;
+        showAll = false; slideIdx = -1; renderPost(s); app.dataset.current = s.id;
       }
-      if (play) {
+      if (slide) {
         const m = h.match(/-t(\d+)$/), i = m ? s.turns.findIndex(t => t.n === +m[1]) : 0;
-        showPlay(s, i < 0 ? 0 : i, false); return;
+        showSlide(s, i < 0 ? 0 : i, false); return;
       }
-      if (playIdx >= 0) { playIdx = -1; renderPost(s); }
+      if (slideIdx >= 0) { slideIdx = -1; renderPost(s); }
       const el = h !== s.id && document.getElementById(h);
       if (el) { const fold = el.closest('.fold'); if (fold) fold.open = true; el.scrollIntoView({ block: 'start' }); }
       else if (!same) window.scrollTo(0, 0);
@@ -479,10 +482,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
-    if (s && e.target.closest('[data-play]')) {
-      showPlay(s, 0, true); return; }
+    if (s && e.target.closest('[data-slide]')) {
+      showSlide(s, 0, true); return; }
     const step = e.target.closest('[data-step]');
-    if (s && step) { showPlay(s, playIdx + +step.dataset.step); return; }
+    if (s && step) { showSlide(s, slideIdx + +step.dataset.step); return; }
     if (e.target.closest('[data-toggle-all]') && s) { showAll = !showAll; applyFolds(); document.getElementById('toggle').innerHTML = toggleHtml(s); }
   });
 
