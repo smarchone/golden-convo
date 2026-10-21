@@ -426,14 +426,16 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     const caret = document.createElement('span'); caret.className = 'caret';
     nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
     const turn = root.closest('.turn');
+    const prompt = root.closest('.stage').querySelector('.prompt');
     let i = 0, ch = 0, timer, wait;
     turn.style.visibility = 'hidden';
+    if (prompt) (prompt.lastElementChild || prompt).append(caret);
     const finish = () => {
       clearTimeout(wait); clearInterval(timer); caret.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
       typing = null;
     };
-    const run = () => timer = setInterval(() => {
+    const run = () => { turn.style.visibility = ''; timer = setInterval(() => {
       let budget = per;
       while (budget > 0 && i < nodes.length) {
         const x = nodes[i];
@@ -445,9 +447,12 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
         if (ch >= x.full.length) { i++; ch = 0; }
       }
       if (i >= nodes.length) finish();
-    }, 16);
-    wait = setTimeout(() => { turn.style.visibility = ''; run(); }, pause);
-    typing = { finish };
+    }, 16); };
+    // The caret blinks after the prompt through the pause; skip() ends the pause first, then the typing.
+    let paused = true;
+    const skip = () => { if (paused) { paused = false; clearTimeout(wait); run(); } else finish(); };
+    wait = setTimeout(() => { paused = false; run(); }, pause);
+    typing = { finish, skip };
   }
 
   function showSlide(s, i, push, animate) {
@@ -461,7 +466,7 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     win.insertAdjacentHTML('beforeend', deckHtml(s));
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply, 3000);
+    if (animate && reply && !reduceMotion.matches) typeInto(reply, 2000);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
     syncView();
     if (push) win.scrollIntoView({ block: 'center' });
@@ -491,9 +496,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
     app.querySelector('.post-head').dataset.viewing = sliding ? 'slide' : 'normal';
     app.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === (sliding ? 'slide' : 'normal'))));
   }
-  // → finishes a reply that is still typing; pressed again it moves on.
+  // → ends the pause before a reply, then finishes its typing; pressed again it moves on.
   function advance(s, d) {
-    if (d > 0 && typing) { typing.finish(); return; }
+    if (d > 0 && typing) { typing.skip(); return; }
     if (slideIdx + d < 0 || slideIdx + d >= stepsOf(s).length) return;
     showSlide(s, slideIdx + d, false, d > 0);
   }
