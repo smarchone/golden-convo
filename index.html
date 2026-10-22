@@ -525,9 +525,10 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
       if (!b.dataset.peek) return;
       peek.textContent = b.dataset.peek;
       peek.hidden = false;
-      // Kept within the sidebar's column, just under the line (or above it near the bottom), so it never covers the terminal.
+      // Right edge on the sidebar's, widening left into the margin, just under the line (or above it near the bottom): never over the terminal.
       const side = app.querySelector('.side').getBoundingClientRect(), r = b.getBoundingClientRect();
-      peek.style.left = `${side.left}px`; peek.style.width = `${side.width}px`;
+      const w = Math.min(360, side.right - 8);
+      peek.style.left = `${side.right - w}px`; peek.style.width = `${w}px`;
       const h = peek.offsetHeight;
       peek.style.top = `${r.bottom + 4 + h <= innerHeight - 8 ? r.bottom + 4 : Math.max(8, r.top - 4 - h)}px`;
     }, 250);
