@@ -168,10 +168,10 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .agent-link:hover { color:var(--accent); }
 .stage .turn { margin:0; padding:0; border:0; }
 .stage .turn.assistant { margin-top:18px; }
-/* the slide's prompt stays pinned at the top; a shade marks where the reply scrolls under it */
+/* the slide's prompt stays pinned at the top; a shade (no line) marks where the reply scrolls under it */
 .stage .turn.user { position:sticky; top:-18px; z-index:1; margin:-18px -20px 0; padding:18px 20px 12px; background:var(--win);
                     max-height:40%; overflow-y:auto; scrollbar-width:none;
-                    border-bottom:1px solid var(--line); box-shadow:0 14px 18px -12px rgba(0,0,0,.75); }
+                    box-shadow:0 14px 18px -12px rgba(0,0,0,.75); }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink 1s steps(2) infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
