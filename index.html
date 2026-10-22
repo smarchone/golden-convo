@@ -443,7 +443,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         <div class="peek" role="tooltip" hidden></div>
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
-            <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}</div>
+            <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}.md</div>
             <button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
           <div class="deck" hidden>
