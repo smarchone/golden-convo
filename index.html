@@ -86,20 +86,22 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
 /* a fixed-size icon, so toggling never shifts the title; the dots on the left balance it */
-.focus-btn { display:none; margin-left:auto; width:24px; height:24px; padding:5px; margin-right:-4px; color:var(--faint); background:none; border:0; border-radius:5px; cursor:pointer; }
+/* the slide counter and focus icon sit together on the right, in a fixed box as wide as the dots' box, so the title stays centred and still */
+.bar-end { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto; }
+body.reading .bar .dots, body.reading .bar-end { width:96px; flex:none; }
+.count { font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.count[hidden] { display:block; visibility:hidden; }
+.focus-key { display:none; font:10px var(--mono); color:var(--faint); opacity:.7; }
+.focus-btn { display:none; width:24px; height:24px; padding:5px; margin-right:-4px; color:var(--faint); background:none; border:0; border-radius:5px; cursor:pointer; }
 .focus-btn svg { display:block; width:14px; height:14px; }
 .focus-btn:hover, .focus-btn[aria-pressed="true"] { color:var(--dim); }
-@media (min-width:1600px) { body.reading .focus-btn { display:block; } } /* focus only where the terminal is centred alone */
-body.reading .bar .dots { width:47px; }
+@media (min-width:1600px) { body.reading .focus-btn, body.reading .focus-key { display:block; } } /* focus only where the terminal is centred alone */
 /* focus: the sidebar fades out in place, so the terminal never moves; pointing at the margin brings it back */
 @media (min-width:1600px) {
   body.reading.focus .side { opacity:0; }
   body.reading.focus .side:hover { opacity:.72; transition-delay:.15s; }
 }
 .bar { position:relative; }
-.focus-note { position:absolute; top:0; bottom:0; right:42px; display:flex; align-items:center; padding-left:16px; background:var(--bar);
-              font:10px var(--mono); color:var(--faint); pointer-events:none; opacity:0; transition:opacity .4s; }
-.focus-note.on { opacity:1; }
 .screen { padding:18px 20px 26px; font:11.7px/1.7 var(--mono); }
 
 .turn { position:relative; scroll-margin-top:16px; }
@@ -192,14 +194,7 @@ body.reading .bar .dots { width:47px; }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink .8s step-end infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
-.deck { display:flex; align-items:center; justify-content:center; gap:14px; padding:2px 0 4px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; border-top:1px solid var(--line); }
-.deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
-.deck button:hover:not(:disabled) { color:var(--accent); }
-.deck button { opacity:0; transition:opacity .2s; } /* the counter stays; arrows show when pointed at (keys and swipe already step) */
-.deck:hover button:not(:disabled), .deck button:focus-visible { opacity:1; }
-.deck button:disabled { opacity:.25; cursor:default; }
-.deck[hidden] { display:none; }
-.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; }
+.prog { position:absolute; left:0; top:40px; z-index:2; height:2px; background:var(--accent); opacity:.6; }
 .win.sliding .prog { transition:width .18s; }
 .win { position:relative; }
 
@@ -415,7 +410,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   function renderPost(s) {
     const golden = new Set(s.fm.golden_turns || []);
     document.body.classList.add('reading');
-    tocStep = -1; autoFocused = false;
+    tocStep = -1;
     app.innerHTML = `
       <div class="post">
         <aside class="side">
@@ -443,13 +438,9 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         <div class="peek" role="tooltip" hidden></div>
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
-            <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}</div>
-            <div class="focus-note">Esc brings the sidebar back</div>
-            <button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div>
+            <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}.md</div>
+            <div class="bar-end"><span class="count" hidden></span><kbd class="focus-key" title="Hide or show the sidebar">F</kbd><button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
-          <div class="deck" hidden>
-            <button data-step="-1" aria-label="Previous">←</button><span></span><button data-step="1" aria-label="Next">→</button>
-          </div>
           <i class="prog"></i>
         </div>
       </div>`;
@@ -491,7 +482,6 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   let slideIdx = -1, typing = null, hinted = false;
   const bare = h => h.replace(/\/(normal|slide)$/, ''); // links shared before the view left the URL
   const stepOfTurn = (s, n) => stepsOf(s).findIndex(st => st.some(t => t.n === n));
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   const stepsOf = s => s.steps || (s.steps = s.turns.reduce((out, t) => {
     const last = out[out.length - 1];
@@ -598,59 +588,25 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     markToc(i);
   }
   function updateDeck(s) {
-    const deck = app.querySelector('.deck'), n = stepsOf(s).length;
-    deck.hidden = slideIdx < 0;
+    const count = app.querySelector('.count'), n = stepsOf(s).length;
+    count.hidden = slideIdx < 0;
     if (slideIdx < 0) { scrollProgress(); markToc(stepOfTurn(s, visibleTurn(s))); markSection(s); return; }
     markToc(slideIdx); markSection(s);
-    deck.querySelector('span').textContent = `${slideIdx + 1} / ${n}`;
-    deck.querySelector('[data-step="-1"]').disabled = slideIdx === 0;
-    deck.querySelector('[data-step="1"]').disabled = slideIdx === n - 1;
+    count.textContent = `${slideIdx + 1} / ${n}`;
     setProgress((slideIdx + 1) / n);
   }
 
-  // Reveal an element's text a few characters at a time; finish() shows the rest at once.
-  function typeInto(root) {
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    for (let n; (n = walker.nextNode());) {
-      if (!n.nodeValue.trim()) continue;
-      const block = n.parentElement.closest('p, li, pre, tr, h1, h2, h3, h4, blockquote') || root;
-      nodes.push({ n, full: n.nodeValue, block });
-    }
-    const total = nodes.reduce((a, x) => a + x.full.length, 0);
-    const per = Math.max(2, Math.ceil(total / 220));
-    const caret = document.createElement('span'); caret.className = 'caret';
-    nodes.forEach(x => { x.n.nodeValue = ''; if (x.block !== root) x.block.style.display = 'none'; });
+  // The reply waits behind the prompt, caret blinking, until → shows it whole.
+  function holdReply(root) {
     const turn = root.closest('.turn');
     const prompt = root.closest('.stage').querySelector('.prompt');
-    let i = 0, ch = 0, timer;
-    turn.style.visibility = 'hidden';
-    // A faint hint beside the waiting caret, gone once the reply starts.
+    const caret = document.createElement('span'); caret.className = 'caret';
     const hint = document.createElement('span'); hint.className = 'next-hint'; hint.textContent = 'press → for the reply';
+    turn.style.visibility = 'hidden';
     if (prompt) (prompt.lastElementChild || prompt).append(caret, ...(hinted ? [] : [hint]));
-    hinted = true; // shown on the first waiting prompt of a visit only
-    const finish = () => {
-      clearInterval(timer); caret.remove(); hint.remove(); turn.style.visibility = '';
-      nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
-      typing = null;
-    };
-    const run = () => { hint.remove(); turn.style.visibility = ''; timer = setInterval(() => {
-      let budget = per;
-      while (budget > 0 && i < nodes.length) {
-        const x = nodes[i];
-        x.block.style.display = '';
-        const take = Math.min(budget, x.full.length - ch);
-        ch += take; budget -= take;
-        x.n.nodeValue = x.full.slice(0, ch);
-        x.n.after(caret);
-        if (ch >= x.full.length) { i++; ch = 0; }
-      }
-      if (i >= nodes.length) finish();
-    }, 16); };
-    // The caret blinks after the prompt until → starts the typing; → again finishes it.
-    let paused = true;
-    const skip = () => { if (paused) { paused = false; run(); } else finish(); };
-    typing = { finish, skip };
+    hinted = true; // the hint shows on the first waiting prompt of a visit only
+    const finish = () => { caret.remove(); hint.remove(); turn.style.visibility = ''; typing = null; };
+    typing = { finish, skip: finish };
   }
 
   function showSlide(s, i, push, animate) {
@@ -663,7 +619,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     screen.scrollTop = 0;
     updateDeck(s);
     const reply = screen.querySelector('.out');
-    if (animate && reply && !reduceMotion.matches) typeInto(reply);
+    if (animate && reply) holdReply(reply);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n);
     syncView();
   }
@@ -695,7 +651,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     app.querySelector('.post').dataset.viewing = sliding ? 'slide' : 'normal';
     app.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === (sliding ? 'slide' : 'normal'))));
   }
-  // → starts a reply typing, then finishes it; pressed again it moves on.
+  // → shows a waiting reply; pressed again it moves on.
   function advance(s, d) {
     if (d > 0 && typing) { typing.skip(); return; }
     if (slideIdx + d < 0 || slideIdx + d >= stepsOf(s).length) return;
@@ -707,13 +663,12 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     if (!s || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const k = e.key;
     if (wide.matches && (k === 'f' || k === 'Escape' && document.body.classList.contains('focus'))) { setFocus(k === 'f' ? !document.body.classList.contains('focus') : false); e.preventDefault(); return; }
-    if (slideIdx < 0) { if (/^(ArrowDown|ArrowUp|PageDown|PageUp| )$/.test(k)) autoFocus(); return; }
+    if (slideIdx < 0) return;
     if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) advance(s, 1);
     else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) advance(s, -1);
     else if (k === 'Home') showSlide(s, 0);
     else if (k === 'End') showSlide(s, stepsOf(s).length - 1);
     else return;
-    autoFocus();
     e.preventDefault();
   });
   let touchX = null;
@@ -722,7 +677,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     const s = curSession();
     if (touchX == null || !s) return;
     const dx = e.changedTouches[0].clientX - touchX; touchX = null;
-    if (Math.abs(dx) > 60) { autoFocus(); advance(s, dx < 0 ? 1 : -1); }
+    if (Math.abs(dx) > 60) advance(s, dx < 0 ? 1 : -1);
   });
 
   async function route() {
@@ -755,20 +710,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     }
   }
 
-  // The first move into the reading (a scroll or a step) steps the sidebar away; once the reader brings it back, it stays.
-  let autoFocused = false, focusNoted = false;
   const wide = matchMedia('(min-width: 1600px)'); // focus mode only where the terminal is centred alone
-  function autoFocus() {
-    if (autoFocused || !wide.matches || !document.body.classList.contains('reading')) return;
-    autoFocused = true;
-    if (document.body.classList.contains('focus')) return;
-    setFocus(true);
-    if (focusNoted) return; // once a visit: say how to get the sidebar back
-    focusNoted = true;
-    const note = app.querySelector('.focus-note'); note?.classList.add('on');
-    setTimeout(() => note?.classList.remove('on'), 3000);
-  }
-  app.addEventListener('wheel', e => { if (e.target.closest('.screen')) autoFocus(); }, { passive: true });
   function setFocus(on) {
     document.body.classList.toggle('focus', on);
     app.querySelector('.focus-btn')?.setAttribute('aria-pressed', on);
@@ -788,8 +730,6 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
       // Keep the keyboard on the terminal, so arrows and Page Down scroll it.
       app.querySelector('.screen').focus({ preventScroll: true });
       return; }
-    const step = e.target.closest('[data-step]');
-    if (s && step) { advance(s, +step.dataset.step); return; }
     const sec = e.target.closest('[data-sec]');
     if (s && sec) { const [i, k] = sec.dataset.sec.split(':').map(Number); goToSection(s, i, k); app.querySelector('.screen').focus({ preventScroll: true }); return; }
     const go = e.target.closest('[data-goto]');
