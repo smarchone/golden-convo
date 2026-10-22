@@ -179,7 +179,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
 .deck button:hover:not(:disabled) { color:var(--accent); }
 .deck button:disabled { opacity:.25; cursor:default; }
-.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; transition:width .18s; }
+.deck[hidden] { display:none; }
+.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; }
+.win.sliding .prog { transition:width .18s; }
 .win { position:relative; }
 
 /* reading layout: a quiet sidebar on the left, the terminal fills the rest of the screen and scrolls inside */
@@ -405,11 +407,20 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
             <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
+          <div class="deck" hidden>
+            <button data-step="-1" aria-label="Previous">←</button><span></span><button data-step="1" aria-label="Next">→</button>
+          </div>
+          <i class="prog"></i>
         </div>
       </div>`;
 
     applyFolds();
-    app.querySelector('.screen').focus({ preventScroll: true });
+    const screen = app.querySelector('.screen');
+    const follow = () => { if (slideIdx < 0) scrollProgress(); };
+    screen.addEventListener('scroll', follow, { passive: true });
+    screen.addEventListener('toggle', follow, true); // a fold opening or closing changes the length
+    screen.focus({ preventScroll: true });
+    scrollProgress();
     document.title = s.fm.title;
   }
 
@@ -442,13 +453,20 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     const steps = stepsOf(s);
     return `<div class="stage">${steps[slideIdx].map(t => turnHtml(s, t, false)).join('')}</div>`;
   }
-  function deckHtml(s) {
-    const n = stepsOf(s).length;
-    return `<div class="deck">
-      <button data-step="-1" ${slideIdx === 0 ? 'disabled' : ''} aria-label="Previous">←</button>
-      <span>${slideIdx + 1} / ${n}</span>
-      <button data-step="1" ${slideIdx === n - 1 ? 'disabled' : ''} aria-label="Next">→</button></div>
-      <i class="prog" style="width:${(slideIdx + 1) / n * 100}%"></i>`;
+  // One window for both views: the progress line follows the slide in slide mode and the scroll in normal mode.
+  function setProgress(f) { app.querySelector('.prog').style.width = `${Math.max(0, Math.min(1, f)) * 100}%`; }
+  function scrollProgress() {
+    const sc = app.querySelector('.screen'), max = sc.scrollHeight - sc.clientHeight;
+    setProgress(max > 0 ? sc.scrollTop / max : 1);
+  }
+  function updateDeck(s) {
+    const deck = app.querySelector('.deck'), n = stepsOf(s).length;
+    deck.hidden = slideIdx < 0;
+    if (slideIdx < 0) return scrollProgress();
+    deck.querySelector('span').textContent = `${slideIdx + 1} / ${n}`;
+    deck.querySelector('[data-step="-1"]').disabled = slideIdx === 0;
+    deck.querySelector('[data-step="1"]').disabled = slideIdx === n - 1;
+    setProgress((slideIdx + 1) / n);
   }
 
   // Reveal an element's text a few characters at a time; finish() shows the rest at once.
@@ -501,8 +519,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     win.classList.add('sliding'); screen.classList.remove('expanded');
     screen.innerHTML = slideHtml(s);
     screen.scrollTop = 0;
-    win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
-    win.insertAdjacentHTML('beforeend', deckHtml(s));
+    updateDeck(s);
     const reply = screen.querySelector('.out');
     if (animate && reply && !reduceMotion.matches) typeInto(reply);
     history[push ? 'pushState' : 'replaceState'](null, '', '#' + s.id + '-t' + steps[slideIdx][0].n + '/slide');
@@ -515,12 +532,12 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     slideIdx = -1;
     const win = app.querySelector('.win'), screen = win.querySelector('.screen');
     win.classList.remove('sliding');
-    win.querySelectorAll('.deck, .prog').forEach(el => el.remove());
     screen.innerHTML = transcriptHtml(s, new Set(s.fm.golden_turns || []));
     applyFolds(); syncView();
     history.replaceState(null, '', '#' + s.id + '-t' + n);
     const el = document.getElementById(s.id + '-t' + n);
     if (el) { const f = el.closest('.fold'); if (f) f.open = true; el.scrollIntoView({ block: 'center' }); }
+    updateDeck(s);
   }
   // The turn at the top of the screen in the normal view, so switching to slides keeps your place.
   function visibleTurn(s) {
