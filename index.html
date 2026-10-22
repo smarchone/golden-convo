@@ -85,19 +85,25 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .dots { display:flex; gap:7px; } .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
 .title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
-.focus-btn { display:none; font:11px var(--mono); color:var(--faint); background:none; border:0; padding:4px 6px; margin-right:-6px; border-radius:5px; cursor:pointer; }
-.focus-btn:hover { color:var(--dim); }
+/* a fixed-size icon, so toggling never shifts the title; the dots on the left balance it */
+.focus-btn { display:none; margin-left:auto; width:24px; height:24px; padding:5px; margin-right:-4px; color:var(--faint); background:none; border:0; border-radius:5px; cursor:pointer; }
+.focus-btn svg { display:block; width:14px; height:14px; }
+.focus-btn:hover, .focus-btn[aria-pressed="true"] { color:var(--dim); }
 body.reading .focus-btn { display:block; }
-/* focus: the sidebar steps away and the terminal stands alone */
-/* focus: the sidebar fades away; the terminal stays exactly where it is */
-body.reading.focus .side { opacity:0; visibility:hidden; }
-body.reading.focus .peek { display:none; }
+body.reading .bar .dots { width:47px; }
+/* focus: the sidebar fades out in place, so the terminal never moves; pointing at the margin brings it back */
+body.reading.focus .side { opacity:0; }
+body.reading.focus .side:hover { opacity:.72; transition-delay:.15s; }
+.bar { position:relative; }
+.focus-note { position:absolute; top:0; bottom:0; right:42px; display:flex; align-items:center; padding-left:16px; background:var(--bar);
+              font:10px var(--mono); color:var(--faint); pointer-events:none; opacity:0; transition:opacity .4s; }
+.focus-note.on { opacity:1; }
 .screen { padding:18px 20px 26px; font:11.7px/1.7 var(--mono); }
 
 .turn { position:relative; scroll-margin-top:16px; }
-.turn + .turn.user { margin-top:26px; padding-top:18px; border-top:1px dashed var(--line); }
+.turn + .turn.user { margin-top:40px; }
 .turn.assistant { margin-top:14px; }
-.turn-label { display:flex; gap:10px; align-items:center; font:11px/1 var(--mono); color:var(--faint); margin:0 0 8px; }
+.turn-label { display:flex; gap:10px; align-items:center; font:11px/1 var(--mono); color:var(--faint); margin:0 0 8px; opacity:.6; }
 .turn-label a { text-decoration:none; } .turn-label a:hover { color:var(--dim); }
 .golden-chip { color:var(--accent); text-transform:uppercase; letter-spacing:.1em; }
 .expanded .turn.golden { margin-left:-20px; padding-left:18px; border-left:2px solid var(--accent);
@@ -115,8 +121,8 @@ body.reading.focus .peek { display:none; }
 .out li { margin:.2em 0; }
 .out strong { color:var(--white); }
 .out em { color:#e6e6e6; }
-.out h1, .out h2, .out h3, .out h4 { font-size:1em; color:var(--accent); margin:1.3em 0 .4em; }
-.out h1 { color:var(--white); }
+.out h1, .out h2, .out h3, .out h4 { font-size:1em; color:var(--white); margin:1.3em 0 .4em; }
+.expanded .turn.golden .out :is(h2, h3, h4) { color:var(--accent); }
 .out code, .prompt code { background:var(--code); padding:1px 5px; border-radius:4px; }
 .out pre { background:var(--code); padding:10px 12px; border-radius:8px; overflow-x:auto; margin:0 0 .9em; line-height:1.5; }
 .out pre code { background:none; padding:0; }
@@ -179,7 +185,7 @@ body.reading.focus .peek { display:none; }
 .stage .turn.user { position:sticky; top:-18px; z-index:1; margin:-18px -20px 0; padding:14px 20px 8px; background:var(--win);
                     max-height:22%; overflow-y:auto; scrollbar-width:none;
                     box-shadow:0 14px 18px -12px rgba(0,0,0,.75); }
-.stage .turn.user .turn-label { margin-bottom:4px; }
+.stage .turn-label { display:none; } /* the counter already says where you are */
 .next-hint { margin-left:10px; font:10px var(--mono); color:var(--faint); white-space:nowrap; }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink .8s step-end infinite; }
 @keyframes blink { 50% { opacity:0; } }
@@ -187,6 +193,8 @@ body.reading.focus .peek { display:none; }
 .deck { display:flex; align-items:center; justify-content:center; gap:14px; padding:2px 0 4px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; border-top:1px solid var(--line); }
 .deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
 .deck button:hover:not(:disabled) { color:var(--accent); }
+.deck button { opacity:0; transition:opacity .2s; } /* the counter stays; arrows show when pointed at (keys and swipe already step) */
+.deck:hover button:not(:disabled), .deck button:focus-visible { opacity:1; }
 .deck button:disabled { opacity:.25; cursor:default; }
 .deck[hidden] { display:none; }
 .prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; }
@@ -194,19 +202,21 @@ body.reading.focus .peek { display:none; }
 .win { position:relative; }
 
 /* reading layout: a quiet sidebar on the left, the terminal fills the rest of the screen and scrolls inside */
-body.reading { padding:20px; }
+body.reading { padding:20px; background:var(--bg); }
 body.reading main.page { max-width:none; }
 body.reading .page > .crumb, body.reading .hint { display:none; }
-/* the terminal is centred on the page; the sidebar sits in the left margin beside it */
-.post { display:grid; grid-template-columns:minmax(232px, 1fr) minmax(0, 762px) minmax(0, 1fr); gap:28px; height:calc(100dvh - 40px); }
+/* sidebar and terminal centred together; on wide screens the terminal alone is centred, the sidebar in its margin */
+.post { display:grid; grid-template-columns:232px minmax(0, 762px); justify-content:center; gap:28px; height:calc(100dvh - 40px); }
+@media (min-width:1330px) { .post { grid-template-columns:1fr 762px 1fr; justify-content:stretch; } } /* room for the sidebar on both sides: centre the terminal */
 .side { min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; display:flex; flex-direction:column; gap:16px; padding:10px 2px 8px 0;
         width:232px; justify-self:end; opacity:.72; transition:opacity .2s, visibility .2s; }
 .side .crumb { margin:0; font-size:12px; }
 .side .post-head { margin:0; gap:8px; }
 .side .post-head h1 { font:600 15px/1.35 var(--sans); color:var(--fg); letter-spacing:-.01em; }
-.side .post-head .why { font-size:12.5px; line-height:1.55; color:var(--dim); }
-.side .post-head .why::before { content:"why"; display:block; font-size:10px; margin-bottom:2px; }
-.side .meta { font-size:11px; color:var(--faint); gap:4px 10px; margin:0; }
+.side .post-head .why { font-size:12.5px; line-height:1.55; color:var(--dim); cursor:pointer;
+                         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.side .post-head .why.open { display:block; }
+.side .post-head .why::before { content:"why · "; font-size:10px; color:var(--faint); }
 .side .view-ctl { flex-direction:column; align-items:flex-start; gap:8px; }
 .side #toggle { min-height:26px; } /* reserved, so switching views or toggling never moves what's below */
 .side .seg button { font-size:11px; padding:6px 10px; }
@@ -215,8 +225,13 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .side .tag { border:0; padding:0; font-size:11px; color:var(--faint); }
 .side .tag::before { content:"#"; opacity:.6; }
 .side .tag:hover, .side .tag[aria-pressed="true"] { color:var(--accent); }
-.side .colophon { margin:0; font-size:10.5px; gap:2px 10px; }
-.side .agent-link { font-size:10.5px; line-height:1.4; }
+.side .details summary { list-style:none; cursor:pointer; font:10.5px var(--mono); color:var(--faint); }
+.side .details summary::-webkit-details-marker { display:none; }
+.side .details summary::before { content:"▸ "; }
+.side .details[open] summary::before { content:"▾ "; }
+.side .details summary:hover { color:var(--dim); }
+.side .colophon { margin:8px 0 6px; font-size:10.5px; gap:2px 10px; }
+.side .agent-link { display:block; font-size:10.5px; line-height:1.4; }
 .post .win { display:flex; flex-direction:column; min-height:0; height:100%; }
 .post .screen { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
 .post .screen:focus { outline:none; }
@@ -241,9 +256,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   .post { grid-template-columns:minmax(0, 1fr); grid-template-rows:auto minmax(0, 1fr); gap:10px; height:calc(100dvh - 20px); }
   .side { overflow:visible; gap:8px; padding:0; opacity:1; width:auto; justify-self:stretch; }
   body.reading.focus .side { display:none; }
-  .side .post-head .why { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .side .post-head .why::before { content:"why · "; display:inline; }
-  .side .tags, .side .colophon, .side .agent-link, .side .meta, .toc { display:none; }
+  .side .tags, .side .details, .toc { display:none; }
   [data-viewing="slide"] #toggle { display:none; }
   .side .view-ctl { flex-direction:row; flex-wrap:wrap; }
   .side #toggle { min-height:0; }
@@ -414,12 +427,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
           <a class="crumb" href="#"><span>~/</span>golden-convo</a>
           <header class="post-head">
             <h1>${esc(s.fm.title)}</h1>
-            <p class="why">${esc(s.fm.why)}</p>
-            <div class="meta">
-              <span>${fmtDate(s.fm.captured)}</span>
-              <span>${esc(s.fm.mode || '')}</span>
-              ${s.fm.status ? `<span class="status">${esc(s.fm.status)}</span>` : ''}
-            </div>
+            <p class="why" title="Click to read it all">${esc(s.fm.why)}</p>
           </header>
           ${tagsHtml(s.fm.labels)}
           <div class="view-ctl">
@@ -427,18 +435,22 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
             <span id="toggle">${toggleHtml(s)}</span>
           </div>
           ${tocHtml(s, golden)}
-          <dl class="colophon">
-            <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
-            <dt>Model</dt><dd>${esc(s.fm.model)}</dd>
-            <dt>Started</dt><dd>${esc(s.fm.started)}</dd>
-          </dl>
-          <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
+          <details class="details"><summary>details</summary>
+            <dl class="colophon">
+              <dt>Captured</dt><dd>${fmtDate(s.fm.captured)}</dd>
+              <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
+              <dt>Model</dt><dd>${esc(s.fm.model)}</dd>
+              <dt>Started</dt><dd>${esc(s.fm.started)}</dd>
+            </dl>
+            <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
+          </details>
         </aside>
         <div class="peek" role="tooltip" hidden></div>
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
-            <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span>
-            <button class="focus-btn" data-focus title="Hide the sidebar (F); Esc brings it back">${document.body.classList.contains('focus') ? 'esc' : 'focus'}</button></div>
+            <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}</div>
+            <div class="focus-note">Esc brings the sidebar back</div>
+            <button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
           <div class="deck" hidden>
             <button data-step="-1" aria-label="Previous">←</button><span></span><button data-step="1" aria-label="Next">→</button>
@@ -481,7 +493,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
 
   // Slide mode: the transcript a step at a time, a step being a prompt and its reply. It is the default view: a new #<id> or #<id>-t<N> link opens slides; the view is never in the link
-  let slideIdx = -1, typing = null;
+  let slideIdx = -1, typing = null, hinted = false;
   const bare = h => h.replace(/\/(normal|slide)$/, ''); // links shared before the view left the URL
   const stepOfTurn = (s, n) => stepsOf(s).findIndex(st => st.some(t => t.n === n));
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -620,7 +632,8 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     turn.style.visibility = 'hidden';
     // A faint hint beside the waiting caret, gone once the reply starts.
     const hint = document.createElement('span'); hint.className = 'next-hint'; hint.textContent = 'press → for the reply';
-    if (prompt) (prompt.lastElementChild || prompt).append(caret, hint);
+    if (prompt) (prompt.lastElementChild || prompt).append(caret, ...(hinted ? [] : [hint]));
+    hinted = true; // shown on the first waiting prompt of a visit only
     const finish = () => {
       clearInterval(timer); caret.remove(); hint.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
@@ -748,21 +761,27 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
 
   // The first move into the reading (a scroll or a step) steps the sidebar away; once the reader brings it back, it stays.
-  let autoFocused = false;
+  let autoFocused = false, focusNoted = false;
   const wide = matchMedia('(min-width: 821px)');
   function autoFocus() {
     if (autoFocused || !wide.matches || !document.body.classList.contains('reading')) return;
     autoFocused = true;
-    if (!document.body.classList.contains('focus')) setFocus(true);
+    if (document.body.classList.contains('focus')) return;
+    setFocus(true);
+    if (focusNoted) return; // once a visit: say how to get the sidebar back
+    focusNoted = true;
+    const note = app.querySelector('.focus-note'); note?.classList.add('on');
+    setTimeout(() => note?.classList.remove('on'), 3000);
   }
   app.addEventListener('wheel', e => { if (e.target.closest('.screen')) autoFocus(); }, { passive: true });
   function setFocus(on) {
     document.body.classList.toggle('focus', on);
-    const b = app.querySelector('.focus-btn'); if (b) b.textContent = on ? 'esc' : 'focus';
+    app.querySelector('.focus-btn')?.setAttribute('aria-pressed', on);
     app.querySelector('.screen')?.focus({ preventScroll: true });
   }
   app.addEventListener('click', e => {
     if (e.target.closest('[data-focus]')) { setFocus(!document.body.classList.contains('focus')); return; }
+    const why = e.target.closest('.side .why'); if (why) { why.classList.toggle('open'); return; }
     const tag = e.target.closest('.tag');
     if (tag) { activeLabel = activeLabel === tag.dataset.label ? null : tag.dataset.label;
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
