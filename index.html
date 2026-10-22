@@ -86,11 +86,16 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
 /* a fixed-size icon, so toggling never shifts the title; the dots on the left balance it */
-.focus-btn { display:none; margin-left:auto; width:24px; height:24px; padding:5px; margin-right:-4px; color:var(--faint); background:none; border:0; border-radius:5px; cursor:pointer; }
+/* the slide counter and focus icon sit together on the right, in a fixed box as wide as the dots' box, so the title stays centred and still */
+.bar-end { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto; }
+body.reading .bar .dots, body.reading .bar-end { width:96px; flex:none; }
+.count { font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.count[hidden] { display:block; visibility:hidden; }
+.focus-key { display:none; font:10px var(--mono); color:var(--faint); opacity:.7; }
+.focus-btn { display:none; width:24px; height:24px; padding:5px; margin-right:-4px; color:var(--faint); background:none; border:0; border-radius:5px; cursor:pointer; }
 .focus-btn svg { display:block; width:14px; height:14px; }
 .focus-btn:hover, .focus-btn[aria-pressed="true"] { color:var(--dim); }
-@media (min-width:1600px) { body.reading .focus-btn { display:block; } } /* focus only where the terminal is centred alone */
-body.reading .bar .dots { width:47px; }
+@media (min-width:1600px) { body.reading .focus-btn, body.reading .focus-key { display:block; } } /* focus only where the terminal is centred alone */
 /* focus: the sidebar fades out in place, so the terminal never moves; pointing at the margin brings it back */
 @media (min-width:1600px) {
   body.reading.focus .side { opacity:0; }
@@ -189,17 +194,7 @@ body.reading .bar .dots { width:47px; }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink .8s step-end infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
-.deck { display:flex; align-items:center; justify-content:center; gap:14px; padding:2px 0 4px; font:11px var(--mono); color:var(--faint); font-variant-numeric:tabular-nums; border-top:1px solid var(--line); }
-.deck button { font:inherit; color:var(--dim); background:none; border:0; padding:6px 10px; cursor:pointer; border-radius:6px; }
-.deck button:hover:not(:disabled) { color:var(--accent); }
-.deck button { opacity:0; transition:opacity .2s; } /* the counter stays; arrows show when pointed at (keys and swipe already step) */
-.deck:hover button:not(:disabled), .deck button:focus-visible { opacity:1; }
-.deck button:disabled { opacity:.25; cursor:default; }
-.deck[hidden] { display:none; }
-.deck { position:relative; }
-.deck-focus { display:none; position:absolute; right:14px; top:50%; transform:translateY(-50%); font:10px var(--mono); color:var(--faint); }
-@media (min-width:1600px) { .deck-focus { display:block; } } /* only where focus mode exists */
-.prog { position:absolute; left:0; bottom:0; height:2px; background:var(--accent); opacity:.6; }
+.prog { position:absolute; left:0; top:40px; z-index:2; height:2px; background:var(--accent); opacity:.6; }
 .win.sliding .prog { transition:width .18s; }
 .win { position:relative; }
 
@@ -444,12 +439,8 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
             <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}.md</div>
-            <button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div>
+            <div class="bar-end"><span class="count" hidden></span><kbd class="focus-key" title="Hide or show the sidebar">F</kbd><button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
-          <div class="deck" hidden>
-            <button data-step="-1" aria-label="Previous">←</button><span></span><button data-step="1" aria-label="Next">→</button>
-            <kbd class="deck-focus" title="Hide or show the sidebar">F focus</kbd>
-          </div>
           <i class="prog"></i>
         </div>
       </div>`;
@@ -597,17 +588,14 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     markToc(i);
   }
   function updateDeck(s) {
-    const deck = app.querySelector('.deck'), n = stepsOf(s).length;
-    deck.hidden = slideIdx < 0;
+    const count = app.querySelector('.count'), n = stepsOf(s).length;
+    count.hidden = slideIdx < 0;
     if (slideIdx < 0) { scrollProgress(); markToc(stepOfTurn(s, visibleTurn(s))); markSection(s); return; }
     markToc(slideIdx); markSection(s);
-    deck.querySelector('span').textContent = `${slideIdx + 1} / ${n}`;
-    deck.querySelector('[data-step="-1"]').disabled = slideIdx === 0;
-    deck.querySelector('[data-step="1"]').disabled = slideIdx === n - 1;
+    count.textContent = `${slideIdx + 1} / ${n}`;
     setProgress((slideIdx + 1) / n);
   }
 
-  // Reveal an element's text a few characters at a time; finish() shows the rest at once.
   // The reply waits behind the prompt, caret blinking, until → shows it whole.
   function holdReply(root) {
     const turn = root.closest('.turn');
@@ -742,8 +730,6 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
       // Keep the keyboard on the terminal, so arrows and Page Down scroll it.
       app.querySelector('.screen').focus({ preventScroll: true });
       return; }
-    const step = e.target.closest('[data-step]');
-    if (s && step) { advance(s, +step.dataset.step); return; }
     const sec = e.target.closest('[data-sec]');
     if (s && sec) { const [i, k] = sec.dataset.sec.split(':').map(Number); goToSection(s, i, k); app.querySelector('.screen').focus({ preventScroll: true }); return; }
     const go = e.target.closest('[data-goto]');
