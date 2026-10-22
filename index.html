@@ -180,9 +180,9 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 
 /* reading layout: a quiet sidebar on the left, the terminal fills the rest of the screen and scrolls inside */
 body.reading { padding:20px; }
-body.reading main.page { max-width:1320px; }
+body.reading main.page { max-width:none; }
 body.reading .page > .crumb, body.reading .hint { display:none; }
-.post { display:grid; grid-template-columns:232px minmax(0, 1fr); gap:28px; height:calc(100dvh - 40px); }
+.post { display:grid; grid-template-columns:232px minmax(0, 762px); justify-content:center; gap:28px; height:calc(100dvh - 40px); }
 .side { min-height:0; overflow-y:auto; scrollbar-width:none; display:flex; flex-direction:column; gap:16px; padding:10px 2px 0 0;
         opacity:.72; transition:opacity .2s; }
 .side:hover, .side:focus-within { opacity:1; }
