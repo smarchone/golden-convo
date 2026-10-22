@@ -225,7 +225,9 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .toc .secs li.on button { color:var(--dim); }
 .peek { position:fixed; z-index:5; padding:8px 11px; border-radius:8px; pointer-events:none;
         background:var(--bar); border:1px solid var(--line); box-shadow:0 12px 30px -12px rgba(0,0,0,.7);
-        font:11.5px/1.55 var(--mono); color:var(--fg); overflow-wrap:anywhere; max-height:60vh; overflow:hidden; }
+        font:11.5px/1.55 var(--mono); color:var(--fg); overflow-wrap:anywhere; overflow:hidden;
+        display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4; } /* enough to place it, not the whole prompt */
+.peek[hidden] { display:none; }
 @media (prefers-reduced-motion: no-preference) { .peek:not([hidden]) { animation:peek .15s ease-out; } @keyframes peek { from { opacity:0; } } }
 @media (max-width:600px) { .stage .turn.user { top:-16px; margin:-16px -14px 0; padding:12px 14px 8px; } }
 @media (max-width:820px) {
