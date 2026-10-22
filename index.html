@@ -169,9 +169,11 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .stage .turn { margin:0; padding:0; border:0; }
 .stage .turn.assistant { margin-top:18px; }
 /* the slide's prompt stays pinned at the top; a shade (no line) marks where the reply scrolls under it */
-.stage .turn.user { position:sticky; top:-18px; z-index:1; margin:-18px -20px 0; padding:18px 20px 12px; background:var(--win);
-                    max-height:40%; overflow-y:auto; scrollbar-width:none;
+.stage .turn.user { position:sticky; top:-18px; z-index:1; margin:-18px -20px 0; padding:14px 20px 8px; background:var(--win);
+                    max-height:22%; overflow-y:auto; scrollbar-width:none;
                     box-shadow:0 14px 18px -12px rgba(0,0,0,.75); }
+.stage .turn.user .turn-label { margin-bottom:4px; }
+.next-hint { margin-left:10px; font:10px var(--mono); color:var(--faint); white-space:nowrap; }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink .8s step-end infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
@@ -215,20 +217,18 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .toc ol { list-style:none; margin:0; padding:0; }
 .toc button { display:block; width:100%; text-align:left; font:11px/1.45 var(--mono); color:var(--faint); background:none; border:0; border-radius:5px;
               padding:4px 6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s, background .15s; }
-.toc button:hover { color:var(--fg); background:rgba(255,255,255,.04); }
-.toc > ol > li { border-left:2px solid transparent; }
-.toc > ol > li.g { border-left-color:var(--accent-line); }
-.toc > ol > li.on > button { color:var(--white); }
-.toc > ol > li.g.on > button { color:var(--accent); }
+.toc button:hover { color:var(--dim); background:rgba(255,255,255,.03); }
+.toc > ol > li.on > button { color:var(--dim); }
 .toc .secs { display:none; padding:0 0 4px 10px; }
 .toc li.on .secs { display:block; }
 .toc .secs button { font-size:10.5px; color:var(--faint); padding:2px 6px; }
-.toc .secs li.on button { color:var(--fg); }
-.peek { position:fixed; z-index:5; max-width:340px; padding:8px 11px; border-radius:8px; pointer-events:none;
+.toc .secs li.on button { color:var(--dim); }
+.peek { position:fixed; z-index:5; padding:6px 10px; border-radius:7px; pointer-events:none;
         background:var(--bar); border:1px solid var(--line); box-shadow:0 12px 30px -12px rgba(0,0,0,.7);
-        font:11.5px/1.55 var(--mono); color:var(--fg); overflow-wrap:anywhere; max-height:60vh; overflow:hidden; }
+        font:10.5px/1.5 var(--mono); color:var(--fg); overflow-wrap:anywhere; }
+.peek span { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; } /* enough to place it, not the whole prompt */
 @media (prefers-reduced-motion: no-preference) { .peek:not([hidden]) { animation:peek .15s ease-out; } @keyframes peek { from { opacity:0; } } }
-@media (max-width:600px) { .stage .turn.user { top:-16px; margin:-16px -14px 0; padding:16px 14px 10px; } }
+@media (max-width:600px) { .stage .turn.user { top:-16px; margin:-16px -14px 0; padding:12px 14px 8px; } }
 @media (max-width:820px) {
   body.reading { padding:10px; }
   .post { grid-template-columns:minmax(0, 1fr); grid-template-rows:auto minmax(0, 1fr); gap:10px; height:calc(100dvh - 20px); }
@@ -522,11 +522,14 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
       const peek = app.querySelector('.peek');
       if (!peek || !b.isConnected) return;
       if (!b.dataset.peek) return;
-      peek.textContent = b.dataset.peek;
+      peek.innerHTML = `<span>${esc(b.dataset.peek)}</span>`;
       peek.hidden = false;
-      const r = b.getBoundingClientRect(), h = peek.offsetHeight;
-      peek.style.left = `${r.right + 12}px`;
-      peek.style.top = `${Math.max(8, Math.min(r.top - 6, innerHeight - h - 8))}px`;
+      // Right edge on the sidebar's, widening left into the margin, just under the line (or above it near the bottom): never over the terminal.
+      const side = app.querySelector('.side').getBoundingClientRect(), r = b.getBoundingClientRect();
+      const w = Math.min(360, side.right - 8);
+      peek.style.left = `${side.right - w}px`; peek.style.width = `${w}px`;
+      const h = peek.offsetHeight;
+      peek.style.top = `${r.bottom + 4 + h <= innerHeight - 8 ? r.bottom + 4 : Math.max(8, r.top - 4 - h)}px`;
     }, 250);
   });
   app.addEventListener('mouseout', e => {
@@ -605,13 +608,15 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     const prompt = root.closest('.stage').querySelector('.prompt');
     let i = 0, ch = 0, timer;
     turn.style.visibility = 'hidden';
-    if (prompt) (prompt.lastElementChild || prompt).append(caret);
+    // A faint hint beside the waiting caret, gone once the reply starts.
+    const hint = document.createElement('span'); hint.className = 'next-hint'; hint.textContent = 'press → for the reply';
+    if (prompt) (prompt.lastElementChild || prompt).append(caret, hint);
     const finish = () => {
-      clearInterval(timer); caret.remove(); turn.style.visibility = '';
+      clearInterval(timer); caret.remove(); hint.remove(); turn.style.visibility = '';
       nodes.forEach(x => { x.n.nodeValue = x.full; x.block.style.display = ''; });
       typing = null;
     };
-    const run = () => { turn.style.visibility = ''; timer = setInterval(() => {
+    const run = () => { hint.remove(); turn.style.visibility = ''; timer = setInterval(() => {
       let budget = per;
       while (budget > 0 && i < nodes.length) {
         const x = nodes[i];
