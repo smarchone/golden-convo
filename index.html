@@ -211,7 +211,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .post .win { display:flex; flex-direction:column; min-height:0; height:100%; }
 .post .screen { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
 .post .screen:focus { outline:none; }
-.toc { position:relative; flex:1 1 auto; min-height:96px; overflow-y:auto; scrollbar-width:none; }
+.toc { position:relative; flex:1 1 0; min-height:96px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; } /* fills the free space and scrolls, never pushes the rest */
 .toc ol { list-style:none; margin:0; padding:0; }
 .toc button { display:block; width:100%; text-align:left; font:11px/1.45 var(--mono); color:var(--faint); background:none; border:0; border-radius:5px;
               padding:4px 6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s, background .15s; }
@@ -226,8 +226,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .toc .secs li.on button { color:var(--fg); }
 .peek { position:fixed; z-index:5; max-width:340px; padding:8px 11px; border-radius:8px; pointer-events:none;
         background:var(--bar); border:1px solid var(--line); box-shadow:0 12px 30px -12px rgba(0,0,0,.7);
-        font:11.5px/1.55 var(--mono); color:var(--dim); overflow-wrap:anywhere; }
-.peek b { display:block; font-weight:600; color:var(--fg); margin-bottom:3px; }
+        font:11.5px/1.55 var(--mono); color:var(--fg); overflow-wrap:anywhere; max-height:60vh; overflow:hidden; }
 @media (prefers-reduced-motion: no-preference) { .peek:not([hidden]) { animation:peek .15s ease-out; } @keyframes peek { from { opacity:0; } } }
 @media (max-width:600px) { .stage .turn.user { top:-16px; margin:-16px -14px 0; padding:16px 14px 10px; } }
 @media (max-width:820px) {
@@ -496,28 +495,24 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
   // The prompt map in the sidebar: one line per prompt; the current one opens to the headings in its reply.
   const headsIn = el => [...el.querySelectorAll('h1, h2, h3, h4')];
-  // Each heading in a step's reply, with the opening text under it for the hover preview.
+  // The headings in a step's reply.
   function sectionsOf(st) {
     const d = document.createElement('div');
     return st.filter(t => t.role === 'assistant').flatMap(t => {
       d.innerHTML = md(t.text.trim());
-      return headsIn(d).map(h => {
-        let lead = '';
-        for (let n = h.nextElementSibling; n && !/^H[1-4]$/.test(n.tagName) && lead.length < 240; n = n.nextElementSibling) lead += ' ' + n.textContent;
-        return { title: h.textContent.trim(), lead: clip(lead.replace(/\s+/g, ' ').trim(), 240) };
-      });
+      return headsIn(d).map(h => h.textContent.trim());
     });
   }
   function tocHtml(s, golden) {
     return `<nav class="toc" aria-label="Prompts"><ol>${stepsOf(s).map((st, i) => {
       const label = plain(st[0].text), secs = sectionsOf(st);
       return `<li class="${st.some(t => golden.has(t.n)) ? 'g' : ''}">
-        <button data-goto="${i}" data-peek="${esc(clip(label, 360))}">${esc(clip(label, 120))}</button>
-        ${secs.length ? `<ol class="secs">${secs.map((h, k) => `<li><button data-sec="${i}:${k}" data-peek-title="${esc(h.title)}" data-peek="${esc(h.lead)}">${esc(h.title)}</button></li>`).join('')}</ol>` : ''}
+        <button data-goto="${i}" data-peek="${esc(label)}">${esc(clip(label, 120))}</button>
+        ${secs.length ? `<ol class="secs">${secs.map((h, k) => `<li><button data-sec="${i}:${k}" data-peek="${esc(h)}">${esc(h)}</button></li>`).join('')}</ol>` : ''}
       </li>`;
     }).join('')}</ol></nav>`;
   }
-  // A quiet preview beside the map: the whole prompt, or a heading and the start of its section.
+  // A quiet preview beside the map: the whole prompt, or the whole heading.
   let peekTimer;
   app.addEventListener('mouseover', e => {
     const b = e.target.closest('.toc button');
@@ -526,9 +521,8 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     peekTimer = setTimeout(() => {
       const peek = app.querySelector('.peek');
       if (!peek || !b.isConnected) return;
-      const title = b.dataset.peekTitle, text = b.dataset.peek;
-      if (!title && !text) return;
-      peek.innerHTML = (title ? `<b>${esc(title)}</b>` : '') + (text ? `<span>${esc(text)}</span>` : '');
+      if (!b.dataset.peek) return;
+      peek.textContent = b.dataset.peek;
       peek.hidden = false;
       const r = b.getBoundingClientRect(), h = peek.offsetHeight;
       peek.style.left = `${r.right + 12}px`;
