@@ -121,8 +121,8 @@ body.reading.focus .side:hover { opacity:.72; transition-delay:.15s; }
 .out li { margin:.2em 0; }
 .out strong { color:var(--white); }
 .out em { color:#e6e6e6; }
-.out h1, .out h2, .out h3, .out h4 { font-size:1em; color:var(--white); margin:1.3em 0 .4em; }
-.expanded .turn.golden .out :is(h2, h3, h4) { color:var(--accent); }
+.out h1, .out h2, .out h3, .out h4 { font-size:1em; color:var(--accent); margin:1.3em 0 .4em; }
+.out h1 { color:var(--white); }
 .out code, .prompt code { background:var(--code); padding:1px 5px; border-radius:4px; }
 .out pre { background:var(--code); padding:10px 12px; border-radius:8px; overflow-x:auto; margin:0 0 .9em; line-height:1.5; }
 .out pre code { background:none; padding:0; }
@@ -213,9 +213,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .side .crumb { margin:0; font-size:12px; }
 .side .post-head { margin:0; gap:8px; }
 .side .post-head h1 { font:600 15px/1.35 var(--sans); color:var(--fg); letter-spacing:-.01em; }
-.side .post-head .why { font-size:12.5px; line-height:1.55; color:var(--dim); cursor:pointer;
-                         display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.side .post-head .why.open { display:block; }
+.side .post-head .why { font-size:12.5px; line-height:1.55; color:var(--dim); }
 .side .post-head .why::before { content:"why · "; font-size:10px; color:var(--faint); }
 .side .view-ctl { flex-direction:column; align-items:flex-start; gap:8px; }
 .side #toggle { min-height:26px; } /* reserved, so switching views or toggling never moves what's below */
@@ -225,12 +223,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .side .tag { border:0; padding:0; font-size:11px; color:var(--faint); }
 .side .tag::before { content:"#"; opacity:.6; }
 .side .tag:hover, .side .tag[aria-pressed="true"] { color:var(--accent); }
-.side .details summary { list-style:none; cursor:pointer; font:10.5px var(--mono); color:var(--faint); }
-.side .details summary::-webkit-details-marker { display:none; }
-.side .details summary::before { content:"▸ "; }
-.side .details[open] summary::before { content:"▾ "; }
-.side .details summary:hover { color:var(--dim); }
-.side .colophon { margin:8px 0 6px; font-size:10.5px; gap:2px 10px; }
+.side .colophon { margin:0 0 6px; font-size:10.5px; gap:2px 10px; }
 .side .agent-link { display:block; font-size:10.5px; line-height:1.4; }
 .post .win { display:flex; flex-direction:column; min-height:0; height:100%; }
 .post .screen { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
@@ -256,6 +249,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   .post { grid-template-columns:minmax(0, 1fr); grid-template-rows:auto minmax(0, 1fr); gap:10px; height:calc(100dvh - 20px); }
   .side { overflow:visible; gap:8px; padding:0; opacity:1; width:auto; justify-self:stretch; }
   body.reading.focus .side { display:none; }
+  .side .post-head .why { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; } /* phones: keep the top strip short */
   .side .tags, .side .details, .toc { display:none; }
   [data-viewing="slide"] #toggle { display:none; }
   .side .view-ctl { flex-direction:row; flex-wrap:wrap; }
@@ -427,7 +421,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
           <a class="crumb" href="#"><span>~/</span>golden-convo</a>
           <header class="post-head">
             <h1>${esc(s.fm.title)}</h1>
-            <p class="why" title="Click to read it all">${esc(s.fm.why)}</p>
+            <p class="why">${esc(s.fm.why)}</p>
           </header>
           ${tagsHtml(s.fm.labels)}
           <div class="view-ctl">
@@ -435,7 +429,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
             <span id="toggle">${toggleHtml(s)}</span>
           </div>
           ${tocHtml(s, golden)}
-          <details class="details"><summary>details</summary>
+          <div class="details">
             <dl class="colophon">
               <dt>Captured</dt><dd>${fmtDate(s.fm.captured)}</dd>
               <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
@@ -443,7 +437,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
               <dt>Started</dt><dd>${esc(s.fm.started)}</dd>
             </dl>
             <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
-          </details>
+          </div>
         </aside>
         <div class="peek" role="tooltip" hidden></div>
         <div class="win">
@@ -781,7 +775,6 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
   app.addEventListener('click', e => {
     if (e.target.closest('[data-focus]')) { setFocus(!document.body.classList.contains('focus')); return; }
-    const why = e.target.closest('.side .why'); if (why) { why.classList.toggle('open'); return; }
     const tag = e.target.closest('.tag');
     if (tag) { activeLabel = activeLabel === tag.dataset.label ? null : tag.dataset.label;
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
