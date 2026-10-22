@@ -224,6 +224,11 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .toc li.on .secs { display:block; }
 .toc .secs button { font-size:10.5px; color:var(--faint); padding:2px 6px; }
 .toc .secs li.on button { color:var(--fg); }
+.peek { position:fixed; z-index:5; max-width:340px; padding:8px 11px; border-radius:8px; pointer-events:none;
+        background:var(--bar); border:1px solid var(--line); box-shadow:0 12px 30px -12px rgba(0,0,0,.7);
+        font:11.5px/1.55 var(--mono); color:var(--dim); overflow-wrap:anywhere; }
+.peek b { display:block; font-weight:600; color:var(--fg); margin-bottom:3px; }
+@media (prefers-reduced-motion: no-preference) { .peek:not([hidden]) { animation:peek .15s ease-out; } @keyframes peek { from { opacity:0; } } }
 @media (max-width:600px) { .stage .turn.user { top:-16px; margin:-16px -14px 0; padding:16px 14px 10px; } }
 @media (max-width:820px) {
   body.reading { padding:10px; }
@@ -415,6 +420,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
             <span id="toggle">${toggleHtml(s)}</span>
           </div>
           ${tocHtml(s, golden)}
+          <div class="peek" role="tooltip" hidden></div>
           <dl class="colophon">
             <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
             <dt>Model</dt><dd>${esc(s.fm.model)}</dd>
@@ -490,19 +496,50 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
   // The prompt map in the sidebar: one line per prompt; the current one opens to the headings in its reply.
   const headsIn = el => [...el.querySelectorAll('h1, h2, h3, h4')];
+  // Each heading in a step's reply, with the opening text under it for the hover preview.
   function sectionsOf(st) {
     const d = document.createElement('div');
-    return st.filter(t => t.role === 'assistant').flatMap(t => { d.innerHTML = md(t.text.trim()); return headsIn(d).map(h => h.textContent.trim()); });
+    return st.filter(t => t.role === 'assistant').flatMap(t => {
+      d.innerHTML = md(t.text.trim());
+      return headsIn(d).map(h => {
+        let lead = '';
+        for (let n = h.nextElementSibling; n && !/^H[1-4]$/.test(n.tagName) && lead.length < 240; n = n.nextElementSibling) lead += ' ' + n.textContent;
+        return { title: h.textContent.trim(), lead: clip(lead.replace(/\s+/g, ' ').trim(), 240) };
+      });
+    });
   }
   function tocHtml(s, golden) {
     return `<nav class="toc" aria-label="Prompts"><ol>${stepsOf(s).map((st, i) => {
       const label = plain(st[0].text), secs = sectionsOf(st);
       return `<li class="${st.some(t => golden.has(t.n)) ? 'g' : ''}">
-        <button data-goto="${i}" title="${esc(clip(label, 300))}">${esc(clip(label, 120))}</button>
-        ${secs.length ? `<ol class="secs">${secs.map((h, k) => `<li><button data-sec="${i}:${k}">${esc(h)}</button></li>`).join('')}</ol>` : ''}
+        <button data-goto="${i}" data-peek="${esc(clip(label, 360))}">${esc(clip(label, 120))}</button>
+        ${secs.length ? `<ol class="secs">${secs.map((h, k) => `<li><button data-sec="${i}:${k}" data-peek-title="${esc(h.title)}" data-peek="${esc(h.lead)}">${esc(h.title)}</button></li>`).join('')}</ol>` : ''}
       </li>`;
     }).join('')}</ol></nav>`;
   }
+  // A quiet preview beside the map: the whole prompt, or a heading and the start of its section.
+  let peekTimer;
+  app.addEventListener('mouseover', e => {
+    const b = e.target.closest('.toc button');
+    if (!b) return;
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(() => {
+      const peek = app.querySelector('.peek');
+      if (!peek || !b.isConnected) return;
+      const title = b.dataset.peekTitle, text = b.dataset.peek;
+      if (!title && !text) return;
+      peek.innerHTML = (title ? `<b>${esc(title)}</b>` : '') + (text ? `<span>${esc(text)}</span>` : '');
+      peek.hidden = false;
+      const r = b.getBoundingClientRect(), h = peek.offsetHeight;
+      peek.style.left = `${r.right + 12}px`;
+      peek.style.top = `${Math.max(8, Math.min(r.top - 6, innerHeight - h - 8))}px`;
+    }, 250);
+  });
+  app.addEventListener('mouseout', e => {
+    if (!e.target.closest('.toc button')) return;
+    clearTimeout(peekTimer);
+    const peek = app.querySelector('.peek'); if (peek) peek.hidden = true;
+  });
   let tocStep = -1;
   function markToc(i) {
     if (i === tocStep) return;
