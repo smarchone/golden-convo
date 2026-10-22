@@ -192,8 +192,7 @@ body.reading main.page { max-width:none; }
 body.reading .page > .crumb, body.reading .hint { display:none; }
 .post { display:grid; grid-template-columns:232px minmax(0, 762px); justify-content:center; gap:28px; height:calc(100dvh - 40px); }
 .side { min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; display:flex; flex-direction:column; gap:16px; padding:10px 2px 8px 0;
-        opacity:.72; transition:opacity .2s; }
-.side:hover, .side:focus-within { opacity:1; }
+        opacity:.72; }
 .side .crumb { margin:0; font-size:12px; }
 .side .post-head { margin:0; gap:8px; }
 .side .post-head h1 { font:600 15px/1.35 var(--sans); color:var(--fg); letter-spacing:-.01em; }
@@ -217,7 +216,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
 .toc ol { list-style:none; margin:0; padding:0; }
 .toc button { display:block; width:100%; text-align:left; font:11px/1.45 var(--mono); color:var(--faint); background:none; border:0; border-radius:5px;
               padding:4px 6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:color .15s, background .15s; }
-.toc button:hover { color:var(--dim); background:rgba(255,255,255,.03); }
+.toc button:hover { color:var(--fg); background:rgba(255,255,255,.04); }
 .toc > ol > li.on > button { color:var(--dim); }
 .toc .secs { display:none; padding:0 0 4px 10px; }
 .toc li.on .secs { display:block; }
@@ -419,7 +418,6 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
             <span id="toggle">${toggleHtml(s)}</span>
           </div>
           ${tocHtml(s, golden)}
-          <div class="peek" role="tooltip" hidden></div>
           <dl class="colophon">
             <dt>Harness</dt><dd>${esc(s.fm.harness)} ${esc(s.fm.harness_version || '')}</dd>
             <dt>Model</dt><dd>${esc(s.fm.model)}</dd>
@@ -427,6 +425,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
           </dl>
           <a class="agent-link" href="${esc(s.id)}.md" title="The turns as plain markdown, for agents to read">agents: ${esc(s.id)}.md ↗</a>
         </aside>
+        <div class="peek" role="tooltip" hidden></div>
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
             <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span></div>
@@ -518,6 +517,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     const b = e.target.closest('.toc button');
     if (!b) return;
     clearTimeout(peekTimer);
+    if (b.scrollWidth <= b.clientWidth) return; // the whole line already shows
     peekTimer = setTimeout(() => {
       const peek = app.querySelector('.peek');
       if (!peek || !b.isConnected) return;
@@ -720,11 +720,11 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         }
         showAll = false; slideIdx = -1; renderPost(s); app.dataset.current = s.id;
       }
-      // Opening a post shows slides (a bare link starts at the first prompt, cursor waiting).
+      // Opening a post shows slides, its prompt alone with the cursor waiting (a bare link starts at the first prompt).
       // Within a post a turn link keeps the current view: the slide holding it, or a scroll to it.
       if (!same || slideIdx >= 0) {
         const m = h.match(/-t(\d+)$/), i = m ? stepOfTurn(s, +m[1]) : 0;
-        if (!same || slideIdx < 0 || i !== slideIdx) showSlide(s, Math.max(0, i), false, !m);
+        if (!same || slideIdx < 0 || i !== slideIdx) showSlide(s, Math.max(0, i), false, !same || !m);
         return;
       }
       const el = h !== s.id && document.getElementById(h);
