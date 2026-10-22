@@ -85,6 +85,12 @@ a:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline
 .dots { display:flex; gap:7px; } .dots i { width:11px; height:11px; border-radius:50%; background:#333; }
 .title { flex:1; min-width:0; text-align:center; font:12px var(--mono); color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bar .model { font:12px var(--mono); color:var(--faint); white-space:nowrap; }
+.focus-btn { display:none; font:11px var(--mono); color:var(--faint); background:none; border:0; padding:4px 6px; margin-right:-6px; border-radius:5px; cursor:pointer; }
+.focus-btn:hover { color:var(--dim); }
+body.reading .focus-btn { display:block; }
+/* focus: the sidebar steps away and the terminal stands alone */
+body.reading.focus .side, body.reading.focus .peek { display:none; }
+body.reading.focus .post { grid-template-columns:minmax(0, 762px); }
 .screen { padding:18px 20px 26px; font:11.7px/1.7 var(--mono); }
 
 .turn { position:relative; scroll-margin-top:16px; }
@@ -428,7 +434,8 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         <div class="peek" role="tooltip" hidden></div>
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
-            <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span></div>
+            <div class="title">${esc(s.path)}</div><span class="model">${esc(s.fm.model)}</span>
+            <button class="focus-btn" data-focus title="Hide the sidebar (F); Esc brings it back">${document.body.classList.contains('focus') ? 'esc' : 'focus'}</button></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
           <div class="deck" hidden>
             <button data-step="-1" aria-label="Previous">←</button><span></span><button data-step="1" aria-label="Next">→</button>
@@ -686,13 +693,14 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   const curSession = () => sessions.find(x => x.id === app.dataset.current);
   document.addEventListener('keydown', e => {
     const s = curSession();
-    if (!s || slideIdx < 0 || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!s || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
     const k = e.key;
+    if (k === 'f' || k === 'Escape' && document.body.classList.contains('focus')) { setFocus(k === 'f' ? !document.body.classList.contains('focus') : false); e.preventDefault(); return; }
+    if (slideIdx < 0) return;
     if (k === 'ArrowRight' || k === 'j' || k === ' ' && !e.shiftKey) advance(s, 1);
     else if (k === 'ArrowLeft' || k === 'k' || k === ' ' && e.shiftKey) advance(s, -1);
     else if (k === 'Home') showSlide(s, 0);
     else if (k === 'End') showSlide(s, stepsOf(s).length - 1);
-    else if (k === 'Escape') exitSlide(s);
     else return;
     e.preventDefault();
   });
@@ -735,7 +743,13 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     }
   }
 
+  function setFocus(on) {
+    document.body.classList.toggle('focus', on);
+    const b = app.querySelector('.focus-btn'); if (b) b.textContent = on ? 'esc' : 'focus';
+    app.querySelector('.screen')?.focus({ preventScroll: true });
+  }
   app.addEventListener('click', e => {
+    if (e.target.closest('[data-focus]')) { setFocus(!document.body.classList.contains('focus')); return; }
     const tag = e.target.closest('.tag');
     if (tag) { activeLabel = activeLabel === tag.dataset.label ? null : tag.dataset.label;
       if (location.hash.length > 1) location.hash = ''; else renderIndex(); return; }
