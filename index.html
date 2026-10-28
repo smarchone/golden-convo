@@ -190,7 +190,10 @@ body.reading .bar .dots, body.reading .bar-end { width:96px; flex:none; }
                     max-height:22%; overflow-y:auto; scrollbar-width:none;
                     box-shadow:0 14px 18px -12px rgba(0,0,0,.75); }
 .stage .turn-label { display:none; } /* the counter already says where you are */
-.next-hint { margin-left:10px; font:10px var(--mono); color:var(--faint); white-space:nowrap; }
+.keyhint { margin-right:12px; font:10.5px var(--mono); color:var(--faint); white-space:nowrap; }
+.keyhint[hidden] { display:none; }
+.k-tap { display:none; }
+@media (hover:none) and (pointer:coarse) { .k-key { display:none; } .k-tap { display:inline; } }
 .caret { display:inline-block; width:.55em; height:1.05em; margin-left:1px; vertical-align:-.15em; background:var(--accent); animation:blink .8s step-end infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { .caret { animation:none; } }
@@ -439,7 +442,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
         <div class="win">
           <div class="bar"><div class="dots"><i></i><i></i><i></i></div>
             <div class="title">${esc(s.id.replace(/^\d{4}-\d{2}-\d{2}-/, ''))}.md</div>
-            <div class="bar-end"><span class="count" hidden></span><kbd class="focus-key" title="Hide or show the sidebar">F</kbd><button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div></div>
+            <div class="bar-end"><span class="keyhint" hidden><span class="k-key">press → to continue</span><span class="k-tap">tap to continue</span></span><span class="count" hidden></span><kbd class="focus-key" title="Hide or show the sidebar">F</kbd><button class="focus-btn" data-focus title="Sidebar (F)" aria-label="Sidebar" aria-pressed="${document.body.classList.contains('focus')}"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x=".6" y="1.6" width="12.8" height="10.8" rx="2"/><path d="M5 1.6v10.8"/></svg></button></div></div>
           <div class="screen" tabindex="0">${transcriptHtml(s, golden)}</div>
           <i class="prog"></i>
         </div>
@@ -479,7 +482,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   }
 
   // Slide mode: the transcript a step at a time, a step being a prompt and its reply. It is the default view: a new #<id> or #<id>-t<N> link opens slides; the view is never in the link
-  let slideIdx = -1, typing = null, hinted = false;
+  let slideIdx = -1, typing = null;
   const bare = h => h.replace(/\/(normal|slide)$/, ''); // links shared before the view left the URL
   const stepOfTurn = (s, n) => stepsOf(s).findIndex(st => st.some(t => t.n === n));
 
@@ -590,6 +593,7 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
   function updateDeck(s) {
     const count = app.querySelector('.count'), n = stepsOf(s).length;
     count.hidden = slideIdx < 0;
+    app.querySelector('.keyhint').hidden = slideIdx < 0;
     if (slideIdx < 0) { scrollProgress(); markToc(stepOfTurn(s, visibleTurn(s))); markSection(s); return; }
     markToc(slideIdx); markSection(s);
     count.textContent = `${slideIdx + 1} / ${n}`;
@@ -601,11 +605,9 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     const turn = root.closest('.turn');
     const prompt = root.closest('.stage').querySelector('.prompt');
     const caret = document.createElement('span'); caret.className = 'caret';
-    const hint = document.createElement('span'); hint.className = 'next-hint'; hint.textContent = 'press → for the reply';
     turn.style.visibility = 'hidden';
-    if (prompt) (prompt.lastElementChild || prompt).append(caret, ...(hinted ? [] : [hint]));
-    hinted = true; // the hint shows on the first waiting prompt of a visit only
-    const finish = () => { caret.remove(); hint.remove(); turn.style.visibility = ''; typing = null; };
+    if (prompt) (prompt.lastElementChild || prompt).append(caret);
+    const finish = () => { caret.remove(); turn.style.visibility = ''; typing = null; };
     typing = { finish, skip: finish };
   }
 
@@ -671,13 +673,16 @@ body.reading .page > .crumb, body.reading .hint { display:none; }
     else return;
     e.preventDefault();
   });
-  let touchX = null;
-  app.addEventListener('touchstart', e => { touchX = slideIdx >= 0 ? e.touches[0].clientX : null; }, { passive: true });
+  // Touch: swipe moves a slide; a tap on the terminal is the → key.
+  let touchX = null, touchY = 0;
+  app.addEventListener('touchstart', e => { touchX = slideIdx >= 0 ? e.touches[0].clientX : null; touchY = e.touches[0].clientY; }, { passive: true });
   app.addEventListener('touchend', e => {
     const s = curSession();
     if (touchX == null || !s) return;
-    const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+    const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY; touchX = null;
     if (Math.abs(dx) > 60) advance(s, dx < 0 ? 1 : -1);
+    else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && e.target.closest('.screen') && !e.target.closest('a, button, summary, input')
+             && !String(getSelection())) advance(s, 1);
   });
 
   async function route() {
