@@ -997,13 +997,13 @@ Downloading got blocked, so I'll watch it in the browser instead.
 [ran: Bash — List browser tool commands]
 [ran: Bash — Get video duration and description]
 [ran: Bash — Capture frames at 10 timestamps]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t1.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t15.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t45.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t80.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t120.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t6.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t140.png]
+[ran: Read — <tmp>/shots/t1.png]
+[ran: Read — <tmp>/shots/t15.png]
+[ran: Read — <tmp>/shots/t45.png]
+[ran: Read — <tmp>/shots/t80.png]
+[ran: Read — <tmp>/shots/t120.png]
+[ran: Read — <tmp>/shots/t6.png]
+[ran: Read — <tmp>/shots/t140.png]
 [ran: Bash — Close the browser session]
 
 I looked at 7 frames of the Short, spread across its 2m26s. This one isn't Blender or generated video. It's the third option we compared, a **code-driven 2D explainer**: very likely Remotion, or something similar, plus a hand-drawn diagram library. There's no AI in the visuals at all; AI is probably only in the script and voice.
@@ -1228,11 +1228,11 @@ how is this video made : https://www.youtube.com/shorts/CGgVjtqIPjY
 
 [ran: Bash — Open the Short and read its metadata]
 [ran: Bash — Capture frames and crop to the video area]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t4.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t20.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t40.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t60.png]
-[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t85.png]
+[ran: Read — <tmp>/shots2/t4.png]
+[ran: Read — <tmp>/shots2/t20.png]
+[ran: Read — <tmp>/shots2/t40.png]
+[ran: Read — <tmp>/shots2/t60.png]
+[ran: Read — <tmp>/shots2/t85.png]
 
 This one is 3D-rendered, almost certainly in **Blender**. It's the "3D kit" lane from our comparison, close to the cutaway-build format. The channel (@OddFrameFilms67) has a compilation called *"1 Hour of Engineering: 49 Machines Taken Apart in 3D"*, which makes it a series with a reusable kit.
 
