@@ -12,7 +12,7 @@ source_path: ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/
 started: "2026-11-21T04:17:33.541Z"
 captured: "2026-11-21T06:42:05Z"
 cwd: ~/Documents/proj/claude/spark/ideas
-turns: 8
+turns: 18
 complete: true
 golden_turns: [2, 4, 8]
 labels: [generative-media, platforms, build-vs-buy, competitive-analysis, learning]
@@ -387,17 +387,13 @@ All 5 forks are back. Here's the merged picture.
 
 That notice is just the hands-on fork going idle. Its results are already in the merged summary above, so nothing new arrived. All 5 forks are now in.
 
----
+### 9 · **user:**
 
-## Appendix · fork final replies
-
-Five forks branched from turn 6 (one per follow-up question). Below: each fork's prompt and its final reply, extracted verbatim from that fork's own session log.
-
-### Fork 1 · a35ed7c8 · **user:**
+[fork 1 of 5 · session a35ed7c8 · branched from turn 6]
 
 help be build understanding on end-2-end  viral ai short workflow
 
-### Fork 1 · a35ed7c8 · **assistant:**
+### 10 · **assistant:**
 
 [ran: WebSearch — viral AI short film workflow breakdown 2026 creator tools step by step]
 [ran: WebSearch — AI filmmaker behind the scenes viral video Nano Banana Kling Veo workflow how I made it]
@@ -469,11 +465,13 @@ Sources:
 
 Another Claude session asked for my last answer, so I sent it the full text with sources: the end-to-end workflow for a viral AI short. It was delivered but hasn't been read there yet. I didn't do any new research or change anything here.
 
-### Fork 2 · bea897a6 · **user:**
+### 11 · **user:**
+
+[fork 2 of 5 · session bea897a6 · branched from turn 6]
 
 ai film vs short film vs reel/microdrama -- pain points and differences in workflow and economics
 
-### Fork 2 · bea897a6 · **assistant:**
+### 12 · **assistant:**
 
 [ran: WebSearch — AI microdrama production cost per episode 2026 ReelShort DramaBox AI-generated]
 [ran: WebSearch — AI short film creator workflow economics 2026 brand deals festival revenue cost]
@@ -562,11 +560,13 @@ Sources:
 
 The parent session ("AI creative tools ecosystem landscape") asked for this session's answer, so I sent it: the full comparison of AI features, short films, reels and microdramas, sources included. It has arrived in that session's inbox but hasn't been read there yet.
 
-### Fork 3 · ca9411b9 · **user:**
+### 13 · **user:**
+
+[fork 3 of 5 · session ca9411b9 · branched from turn 6]
 
 who is earning - tool company (higsfield) vs aggregators (runway) vs creators (microdrama) ??
 
-### Fork 3 · ca9411b9 · **assistant:**
+### 14 · **assistant:**
 
 [ran: WebSearch — Higgsfield ARR 2026 revenue valuation]
 [ran: WebSearch — Runway ARR 2026 revenue; Kling AI annualized revenue 2026; ElevenLabs ARR 2026; Suno ARR 2026]
@@ -618,12 +618,14 @@ Sources:
 
 The parent session asked for this fork's final answer, so I sent it the full "who is earning" answer with sources. It's now in the parent's inbox but hasn't been read there yet. No new research was done for the hand-off.
 
-### Fork 4 · 2b3d9f87 · **user:**
+### 15 · **user:**
+
+[fork 4 of 5 · session 2b3d9f87 · branched from turn 6]
 
 hands on exeperince simulation on first 30 sec clip/reel on comfy UI
 also comparision on (cost, quality, time) on (veo, king, confyUI)
 
-### Fork 4 · 2b3d9f87 · **assistant:**
+### 16 · **assistant:**
 
 [ran: Skill — story-to-playbook]
 [ran: Bash — Read example playbook and list existing playbooks]
@@ -661,11 +663,13 @@ Prices are late-2026 list rates. Render times, reroll counts and quality scores 
 
 Sources: [invideo video pricing](https://invideo.io/blog/ai-video-model-pricing/) · [DEV: 100 videos cost](https://dev.to/arib_khan_ba8305927b74917/what-100-ai-videos-actually-cost-across-apis-seedance-25-veo-31-kling-466a) · [RunPod pricing](https://www.runpod.io/gpu-cloud/pricing) · [Wan 2.2](https://github.com/Wan-Video/Wan2.2)
 
-### Fork 5 · 7a10018e · **user:**
+### 17 · **user:**
+
+[fork 5 of 5 · session 7a10018e · branched from turn 6]
 
 help me get current status and conversations on legal system (rights) and content platform policies regarding ai generated content.
 
-### Fork 5 · 7a10018e · **assistant:**
+### 18 · **assistant:**
 
 [ran: WebSearch — AI copyright lawsuits status November 2026 Getty Stability NYT OpenAI Disney Midjourney ruling]
 [ran: WebSearch — US Copyright Office AI generated works copyrightability 2026 Thaler Supreme Court]
