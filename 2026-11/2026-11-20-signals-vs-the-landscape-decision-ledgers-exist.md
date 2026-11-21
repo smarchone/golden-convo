@@ -26,10 +26,6 @@ is any one building @TODO  like layer ?
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — architecture decision records for AI coding agents context layer 2026]
-[ran: WebSearch — spec-driven development tool coding agents decisions memory Kiro spec-kit BMAD]
-[ran: WebSearch — agent decision log promote to project memory human approval coding agent open source]
-
 Yes, several projects overlap with parts of it. I didn't find any that combines the specific pieces that make up signals. Caveat: this comes from one round of searches over READMEs, blogs and two papers. I haven't checked anyone's code.
 
 **Closest neighbours**

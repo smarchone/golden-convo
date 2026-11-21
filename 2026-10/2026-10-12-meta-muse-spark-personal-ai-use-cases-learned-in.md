@@ -46,11 +46,6 @@ look it up
 
 ### 4 · **assistant:**
 
-[ran: WebSearch — Meta Muse model personal AI Meta Superintelligence Labs]
-[ran: WebSearch — Meta Muse Spark use cases Meta AI app personal superintelligence]
-[ran: WebFetch — https://about.fb.com/news/2026/04/introducing-muse-spark-meta-superintelligence-labs/]
-[ran: WebFetch — https://ai.meta.com/blog/introducing-muse-spark-msl/]
-
 # Meta Muse (personal-AI use cases) in 6 shots
 Meta Superintelligence Labs' closed, multimodal model family; Muse Spark runs Meta AI across its apps and glasses.
 

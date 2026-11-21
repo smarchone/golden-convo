@@ -29,20 +29,6 @@ status: raw
 
 I'll research Atlan's context layer (sources, dates, quotes) and then write the origin story.
 
-[ran: WebSearch — Atlan "context layer" AI agents launch]
-[ran: WebSearch — Prukalpa Sankar Varun Banka Atlan origin SocialCops data team]
-[ran: WebFetch — https://atlan.com/context-layer/]
-[ran: WebSearch — Atlan Activate 2025 "context" metadata lakehouse MCP server announcement Prukalpa]
-[ran: WebSearch — Atlan Series C $105 million 2024 GIC valuation active metadata]
-[ran: WebFetch — https://atlan.com/know/context-layer-stopped-being-theoretical-activate-2026/]
-[ran: WebSearch — Prukalpa Sankar "context layer" OR "context is the new" AI agents interview quote 2026]
-[ran: WebSearch — Prukalpa Sankar "Data Catalog 3.0" active metadata 2021 essay]
-[ran: WebFetch — https://contextandchaos.substack.com/p/the-github-for-context-doesnt-exist]
-[ran: WebFetch — https://atlan.com/know/gdd-who-will-own-ai-context/]
-[ran: WebSearch — Atlan SocialCops "failed three times" data catalog internal tool Prukalpa quote]
-[ran: WebSearch — Atlan rebrand "context layer for AI" homepage shift from "active metadata" when announced]
-[ran: WebFetch — https://atlan.com/know/activate-2025-recap/]
-
 Research is done (Atlan's own pages, the founders' essays, press coverage of the funding round, the Great Data Debate). Here's the origin story.
 
 # Atlan Context Layer — origin story

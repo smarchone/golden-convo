@@ -26,15 +26,6 @@ status: raw
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — Paperclip AI agents zero-human company orchestration open source]
-[ran: WebSearch — paperclip.ing experience running company with AI agents CEO agent heartbeat budget lessons]
-[ran: WebFetch — https://github.com/paperclipai/paperclip]
-[ran: WebFetch — https://dev.to/jangwook_kim_e31e7291ad98/how-we-built-a-company-powered-by-14-ai-agents-using-paperclip-4bg6]
-[ran: WebFetch — https://www.zenml.io/llmops-database/open-source-agent-orchestration-platform-for-multi-agent-business-automation]
-[ran: WebSearch — paperclip agents reddit OR hacker news "paperclip" agent company burned tokens OR "infinite loop" OR "CEO agent" experie]
-[ran: WebFetch — https://felipefontoura.com/articles/paperclip-ai-agent-company/]
-[ran: WebFetch — https://www.niran.ai/blog/paperclip-how-we-cleaned-up-the-agentic-company]
-
 # Paperclip (paperclip.ing), distilled
 An open-source control plane that runs coding agents as an org chart with a board, tickets, and budgets.
 
@@ -84,22 +75,6 @@ Sources:
 not whats generic. i want specific  ways people are using paperclip to run businesses which actually generate value.
 
 ### 4 · **assistant:**
-
-[ran: WebSearch — paperclip AI agents company revenue results "paperclip" case study MRR OR customers OR "first sale"]
-[ran: WebSearch — "paperclip" agents used for agency OR SEO OR ecommerce OR newsletter OR client work results 2026]
-[ran: WebSearch — site:x.com OR site:reddit.com paperclip agents "my company" revenue dotta]
-[ran: WebFetch — https://paperclip.ing/blog]
-[ran: Bash — Fetch recent Paperclip GitHub discussions]
-[ran: WebSearch — paperclip agents "dentist" OR "roofing" OR "security firm" dotta demo users business]
-[ran: Bash — Read key Paperclip discussions in full]
-[ran: WebFetch — https://paperclip.ing/blog/who-is-using-paperclip-on-github/]
-[ran: WebFetch — https://cybernative.ai]
-[ran: WebFetch — https://paperclip.ing/blog/now-your-paperclip-has-a-bank-account/]
-[ran: WebFetch — https://paperclip.ing/blog/when-one-ai-assistant-stops-being-enough-for-a-marketing-campaign/]
-[ran: Bash — Inspect named Paperclip-built business repos]
-[ran: Bash — Read more of Quant Zero README]
-[ran: WebSearch — "paperclip" AI agents "I run" OR "we run" business clients revenue agency 2026 first-hand]
-[ran: WebSearch — Greg Isenberg dotta paperclip tips "startup ideas" podcast how to use paperclip]
 
 # Paperclip in businesses that produce something, distilled
 These are the uses where Paperclip is tied to a product, a sale, or a real decision, not demos.

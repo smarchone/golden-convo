@@ -26,8 +26,6 @@ rename the github repo as driving-school
 
 ### 2 · **assistant:**
 
-[ran: Bash — Rename GitHub repo and update local remote URL]
-
 I renamed the GitHub repo from `smarchone/driving-sim` to `smarchone/driving-school`. I also pointed your local `origin` remote at the new address, `<redacted>:smarchone/driving-school.git`. GitHub forwards links that use the old name to the new one.
 
 ### 3 · **user:**
@@ -70,10 +68,6 @@ am i reinventing the wheel ? is anyone doing this already.
 do a quick research
 
 ### 6 · **assistant:**
-
-[ran: WebSearch — AI driving instructor simulator steering wheel learn to drive at home 2026]
-[ran: WebSearch — AI real-time voice coach sim racing telemetry trophi.ai track titan]
-[ran: WebSearch — City Car Driving simulator driving school lessons Logitech G29]
 
 I ran three searches and kept the panel format.
 

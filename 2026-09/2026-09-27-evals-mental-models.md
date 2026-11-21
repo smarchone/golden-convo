@@ -321,8 +321,6 @@ result: Built a runnable toy agent eval harness in `agent-evals-toy/` (bank sand
 
 The build fork has finished. I'll run the harness once to confirm it works before summarizing.
 
-[ran: Bash — List harness files and run it with 10 trials]
-
 I built the toy harness and ran it once here with 10 trials per task. It works with no API key.
 
 **Where it is:** `agent-evals-toy/`. It isn't committed, because this folder isn't a git repo, so the files are just saved there.
@@ -551,9 +549,6 @@ do people write evals for skills ?
 ### 14 · **assistant:**
 
 I'll check how the skill tooling available here structures skill evals, so the answer is concrete.
-
-[ran: Bash — Find skill-creator skill files and grep its eval guidance]
-[ran: Bash — Read the eval file format and triggering-eval section]
 
 Yes, it's becoming standard practice, though many teams still just try a few prompts by hand. The `skill-creator` skill installed here has a full skill-eval workflow built in. Its approach has two parts, which match the routing and usage layers from earlier.
 

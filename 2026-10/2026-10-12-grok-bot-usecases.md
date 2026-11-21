@@ -23,17 +23,11 @@ status: raw
 
 /origin-story https://boskykode.com/
 
-### 2 · **assistant:**
-
-[ran: fetch boskykode.com + web search "boskykode" — both rejected by user; request interrupted]
-
 ### 3 · **user:**
 
 /productivity:few-shot grokbot usecases
 
 ### 4 · **assistant:**
-
-[ran: asked a question]
 
 I can't pin down "grokbot" for sure, and I don't want to guess and give you shots for the wrong thing. Which one do you mean?
 - @grok on X — xAI's Grok as a reply bot you tag in X threads.
@@ -46,9 +40,6 @@ I can't pin down "grokbot" for sure, and I don't want to guess and give you shot
 Look it up
 
 ### 6 · **assistant:**
-
-[ran: web search "grokbot"]
-[ran: fetched Cursor docs "Get started with Grok Bot", Vellum's Grok Bot breakdown, Analytics Vidhya's Grok Bot tutorial]
 
 # Grok Bot in 6 shots
 xAI's beta agent: named bots doing async work on a persistent cloud computer, using your logins.
@@ -220,9 +211,6 @@ So treat chat as the place where bots tell each other what to do, and files as t
 are they planning to improve the team behaviour ?
 
 ### 16 · **assistant:**
-
-[ran: web search "Grok Bot roadmap multi-agent group chat shared memory xAI Cursor"]
-[ran: fetched ZenML's write-up of xAI's multi-agent design post and xAI's "Introducing Grok Bot"]
 
 xAI hasn't published a roadmap for team behaviour. Its launch post has no "coming soon" items. The only forward-looking parts are an Enterprise waitlist and a general line that bots "become more proactive, picking up work before you need to ask."
 

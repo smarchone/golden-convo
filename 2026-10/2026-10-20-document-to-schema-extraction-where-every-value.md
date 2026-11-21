@@ -213,13 +213,7 @@ unit_price 12.5 | min_order 500 | late_fee 1.5% | effective "01/04/26"
 
 ### 10 · **assistant:**
 
-[ran: Bash — Check golden repo path and existing labels]
-[ran: Bash — Generate golden session file without publishing]
-[ran: Bash — Review generated file for cut point and redactions]
-
 The insights are in turns 4 and 8, not 2, so I'm fixing that and publishing without `--index`. Nothing needs redacting ("Acme" is made up).
-
-[ran: Bash — Publish golden session as merged PR without index]
 
 I saved this session as a golden session and merged it: https://github.com/smarchone/golden-convo/pull/28. As you asked, it isn't listed in `index.json`.
 
@@ -238,11 +232,6 @@ do some research to get this thing up and running in no time.
 do some research to get this thing up and running in no time. what are my options.
 
 ### 12 · **assistant:**
-
-[ran: WebSearch — Docling 2026 xlsx images OCR table structure release]
-[ran: WebSearch — document extraction API structured schema bounding box citations 2026 Reducto Extend LlamaExtract comparison]
-[ran: WebSearch — AWS Bedrock Data Automation vs Azure Content Understanding vs Google Document AI custom extractor 2026]
-[ran: WebSearch — Claude API PDF support structured outputs citations extraction 2026]
 
 I'd assemble this yourself: Docling as reader A, a hosted extraction API or a vision LLM as reader B, and a simple review screen. That gets you running in days, and it's the only option that fully keeps the rule that the LLM points at a cell and never types the number.
 
@@ -311,13 +300,6 @@ how do they do it? do they do reader A and B both ?
 how do they maintain accuracy/confidence ?
 
 ### 14 · **assistant:**
-
-[ran: WebSearch — Reducto security SOC 2 HIPAA zero data retention on-prem VPC deployment pricing credits]
-[ran: WebSearch — LlamaExtract LlamaCloud pricing credits per page SOC 2 HIPAA data retention]
-[ran: WebSearch — Reducto how it works agentic OCR multi-pass vision model confidence scores architecture]
-[ran: WebSearch — Extend AI extraction confidence scores review agent accuracy SOC 2 HIPAA pricing]
-[ran: WebSearch — LlamaIndex "what makes an extraction confidence score useful" precision recall cutoff results LlamaExtract Reducto]
-[ran: WebSearch — micro1 document extraction benchmark 225 documents results Reducto LlamaExtract Extend precision recall]
 
 Short version: the accuracy numbers depend on who ran the benchmark, the low price comes without the compliance features, and these vendors use a second model to *correct* the first one. Your design needs a second reader that *checks independently* instead.
 

@@ -29,16 +29,7 @@ status: raw
 
 I'll check key facts and quotes first, then write the origin story in the skill's format.
 
-[ran: WebSearch — ZEIT now launch 2016 Guillermo Rauch blog "now" realtime global deployments]
-[ran: WebSearch — ZEIT renamed Vercel April 2020 Series A $21M Rauch quote]
-[ran: WebSearch — Vercel funding 2026 valuation revenue]
-
 Facts confirmed (cofounders Tony Kovanen and Naoyuki Kanezawa, the 2020 rebrand, the Series F). Next I'm pulling exact quotes from the Now 2.0 and Next.js launch posts.
-
-[ran: WebFetch — https://vercel.com/blog/now-2]
-[ran: WebFetch — https://vercel.com/blog/next]
-[ran: WebSearch — "Now 2.0" ZEIT November 2018 serverless lambdas Docker deprecated blog]
-[ran: WebSearch — CVE-2025-29927 Next.js middleware bypass Vercel postmortem; React2Shell CVE-2025-55182 Vercel]
 
 I verified the key facts with a few web searches: founders, rebrand date and funding, the Next.js launch post, and recent funding and security events. Here's the story.
 

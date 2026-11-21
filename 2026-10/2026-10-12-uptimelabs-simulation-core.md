@@ -23,11 +23,6 @@ status: raw
 /origin-story https://www.uptimelabs.io/
 
 **2. assistant:**
-[ran: read_url_content https://www.uptimelabs.io/]
-[ran: view_file content.md]
-[ran: search_web "Uptime Labs" founder "Anthony" OR "founder" site:linkedin.com OR site:uptimelabs.io OR "incident response training"]
-[ran: search_web "Hamed Silatani" "Uptime Labs" origin story OR founded OR interview OR "IG Group"]
-[ran: search_web "Uptime Labs" funding OR "pre-seed" OR "seed" "Joe McKevitt" "Hamed Silatani" year founded]
 
 # Uptime Labs — origin story
 AI-driven incident response training & drill simulation platform · 2021 · Hamed Silatani, Joe McKevitt, Jack Moore

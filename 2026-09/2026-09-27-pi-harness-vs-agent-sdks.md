@@ -160,30 +160,9 @@ do some research and update
 
 ### 4 · **assistant:**
 
-[ran: WebFetch — https://mariozechner.at/posts/2025-11-30-pi-coding-agent/]
-[ran: WebFetch — https://github.com/badlogic/pi-mono]
-[ran: WebSearch — Mario Zechner pi Earendil joins Armin Ronacher 2026]
-[ran: WebSearch — OpenClaw built on pi agent Mario Zechner SDK]
-[ran: WebFetch — https://lucumr.pocoo.org/2026/1/31/pi/]
-[ran: WebFetch — https://rfc.earendil.com/0015/]
-[ran: WebFetch — https://newsletter.pragmaticengineer.com/p/building-pi-and-what-makes-self-modifying]
-[ran: WebFetch — https://www.pi-map.org/news/pi-joins-earendil/]
-[ran: WebSearch — pi coding agent changelog extensions "pi install" packages session tree /tree release]
-[ran: WebSearch — Anthropic blocks third-party OAuth Claude subscription pi OpenCode OpenClaw 2026]
-
 Progress so far: I've confirmed the move to Earendil (Apr 2026), the repo rename, the licensing RFC and the timeline of the OAuth ban. Two more lookups, then I'll write the update.
 
-[ran: WebFetch — https://piagent.fyi/news/pi-joins-earendil/]
-[ran: WebFetch — https://github.com/earendil-works/pi/blob/main/packages/coding-agent/CHANGELOG.md]
-[ran: Bash — Download pi changelog and find when features first appeared]
-[ran: Bash — Map feature changelog lines to pi version headers]
-[ran: Bash — Resolve versions for session trees, extensions, telemetry, and current release]
-[ran: Bash — Resolve remaining versions and fetch repo and npm stats]
-[ran: Bash — List current packages and check early repo history]
-
 I've finished collecting the version dates from the changelog. One last check on the new server/client packages, then I'll write it up.
-
-[ran: Bash — Read summaries and earliest dates of the newer packages]
 
 # pi (agent harness): how it evolved *(grounded)*
 A minimal, self-extending coding-agent harness plus TypeScript SDK (`earendil-works/pi`, MIT) · ~110k GitHub stars, ~14k forks (Sep 2026) · ~13.6M npm downloads/month across the old and new package names (Aug–Sep 2026; much of that is transitive installs via OpenClaw) · repo started Aug 2025, launched Nov 2025, now at v0.87.1 (22 Sep 2026)
@@ -348,9 +327,6 @@ The pattern across all of this: the loop and the 4 tools have barely changed. Ev
 how does pi compare now with agent sdks and managed agents.
 
 ### 6 · **assistant:**
-
-[ran: Skill — claude-api]
-[ran: Bash — Look up Managed Agents pricing and self-hosting notes]
 
 **Short answer:** pi now sits in the same layer as the Claude Agent SDK. It gives you the agent loop and you run it yourself. Its bet is the opposite, though: a minimal core that works with any model, instead of a batteries-included agent tied to one vendor. It doesn't compete with managed agents yet. Its experimental durable-session server (Jul–Sep 2026) is the first sign it's heading there, self-hosted.
 

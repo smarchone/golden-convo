@@ -124,17 +124,6 @@ do a research to stitch existing solutions to make this
 
 ### 6 · **assistant:**
 
-[ran: WebSearch — Colyseus authoritative multiplayer server 2026 release]
-[ran: WebSearch — WebTransport browser support Safari 2026]
-[ran: WebSearch — open source browser MOBA WebGL authoritative server netcode]
-[ran: WebSearch — OpenMatch Agones matchmaking dedicated game server kubernetes 2026]
-[ran: WebSearch — Recast Detour navmesh WASM javascript recast-navigation-js crowd]
-[ran: WebSearch — Three.js WebGPU renderer production ready 2026 instanced skinned mesh]
-[ran: WebSearch — Nakama open source matchmaker authoritative match handler 2026]
-[ran: WebSearch — Edgegap OR Rivet OR Hathora browser game server hosting WebSocket 2026]
-[ran: WebSearch — bitECS javascript ECS performance 2026 multiplayer snapshot]
-[ran: WebSearch — Quaternius KayKit CC0 low poly fantasy characters animated glTF]
-
 **CEO:** The good news from the research: **every layer except the game itself already exists off the shelf.** No open-source browser MOBA has solved the hard part ([OpenMOBA](https://github.com/mmiszy/OpenMOBA) is an early alpha), so the sim is yours to build. Everything around it you can put together from existing pieces.
 
 **Architect:** Here's the stack, layer by layer:

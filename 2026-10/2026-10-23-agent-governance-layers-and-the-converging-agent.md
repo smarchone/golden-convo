@@ -28,9 +28,6 @@ lets also explore similar platforms
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — Google Gemini Enterprise agent governance registry custom agents 2026]
-[ran: WebSearch — agent control plane governance registry Microsoft Agent 365 AWS AgentCore ServiceNow AI Control Tower 2026]
-
 Yes. Google calls it the **Gemini Enterprise Agent Platform**. The governed layer is mostly two parts, **Agent Registry** and **Agent Gateway**, with an identity for every agent. Here's how it fits together.
 
 ## The Google picture
@@ -120,11 +117,6 @@ lets compare the infra/platform primitive for agents by google, vercel, cloudfla
 i want to see the direction the industry is converging
 
 ### 4 · **assistant:**
-
-[ran: WebSearch — Google Agent Compute Engine announcement agent runtime sandbox primitives]
-[ran: WebSearch — Vercel agents infrastructure 2026 Workflow Sandbox AI Gateway Fluid compute]
-[ran: WebSearch — Cloudflare Agents SDK 2026 Durable Objects sandbox containers MCP agents platform]
-[ran: WebSearch — AWS Bedrock AgentCore runtime memory gateway browser code interpreter 2026; Anthropic Claude Managed Agents; OpenAI agen]
 
 Everyone is building the same stack, just starting from different positions. At the bottom, the unit of compute is moving from the **request** to the **session**. Above that, the product is moving from compute to a **managed harness**.
 
