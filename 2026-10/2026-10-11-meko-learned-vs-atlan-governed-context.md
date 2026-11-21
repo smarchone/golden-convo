@@ -27,15 +27,7 @@ status: raw
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — Yugabyte Meko]
-[ran: WebSearch — YugabyteDB Meko announcement]
-
 Let me read the primary sources.
-
-[ran: WebFetch — https://thenewstack.io/yugabyte-meko-ai-agent-state/]
-[ran: WebFetch — https://www.yugabyte.com/blog/meko-data-infrastructure-for-agents-that-work-and-learn-together/]
-[ran: WebFetch — https://www.yugabyte.com/blog/meko-agent-memory-with-built-in-discernment/]
-[ran: WebFetch — https://tessl.io/blog/why-multi-agent-ai-breaks-in-production-and-how-yugabytes-meko-is-trying-to-fix-it]
 
 # Meko — origin story
 Agent-native data layer (memory, knowledge, conversations, traces) over a single MCP endpoint · launched 2026-05-07 · Yugabyte
@@ -328,10 +320,6 @@ sketch the mcp for meko
 
 ### 18 · **assistant:**
 
-[ran: WebFetch — https://docs.mekodata.ai]
-[ran: WebFetch — https://docs.mekodata.ai/reference/mcp-server/]
-[ran: WebFetch — https://docs.mekodata.ai/reference/api-keys/]
-
 Meko's MCP server is documented, so this isn't a guess. The tool list comes from the [MCP server reference](https://docs.mekodata.ai/reference/mcp-server/) and [API keys page](https://docs.mekodata.ai/reference/api-keys/).
 
 ## Shape
@@ -378,16 +366,7 @@ i think the playbook on how to use meko infra is in its skill
 
 ### 20 · **assistant:**
 
-[ran: WebFetch — https://docs.mekodata.ai/integrations/]
-[ran: WebSearch — Meko skill SKILL.md Yugabyte mekodata.ai agent instructions memory_search memory_add]
-[ran: Bash — List files in the meko-skills repo]
-[ran: Bash — List files in the meko-skills repo]
-[ran: Bash — Find skill files in the plugin]
-[ran: Bash — Fetch core Meko skill playbook files]
-
 Found it: Yugabyte ships a `meko-skills` repo with the playbook. I'm reading the saved output now so I can summarize it.
-
-[ran: Read — ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/12470daa-20b9-4a30-a1a5-88fdec4b314c/tool]
 
 You're right. The playbook is in the `meko-mcp-tools` skill (v3.1.0, Apache-2.0) in [yugabyte/meko-skills](https://github.com/yugabyte/meko-skills). I read `SKILL.md` and five reference files. They say more about how Meko actually works than the launch posts do. The skill's text is cut off after the "Automatic conversation capture" heading, so I haven't read the rest of `SKILL.md`.
 
@@ -509,8 +488,6 @@ If you're designing something similar, the part worth copying is the three-stage
 how is meko different from atlan
 
 ### 28 · **assistant:**
-
-[ran: WebSearch — Atlan context layer for AI agents enterprise context MCP data catalog]
 
 They overlap in the pitch ("context layer for agents over MCP") but differ in what the context is about and who writes it. This is based on Atlan's own marketing, not hands-on use of either product.
 

@@ -26,12 +26,6 @@ status: raw
 
 ### 2 · **assistant:**
 
-[ran: Bash — List repo files and read README]
-[ran: Bash — List remaining files and read architecture doc]
-[ran: Bash — Read decision engine and policy]
-[ran: Bash — Map service and API functions]
-[ran: Bash — Read errors, decision and trade flow, routes, SEC doc]
-
 # MoodRing, distilled
 A local, virtual-money stock-trading simulator. You send it a forecast, and fixed rules decide whether and how much to trade.
 
@@ -259,8 +253,6 @@ It reruns the same guess-quality check (`_decision`) with a **fresh price**. It 
 so what does close_trade do
 
 ### 10 · **assistant:**
-
-[ran: Bash — Read close_trade and its callers]
 
 `close_trade` **sells the whole position** and turns the shares back into fake cash. It's the opposite of `execute_trade`.
 

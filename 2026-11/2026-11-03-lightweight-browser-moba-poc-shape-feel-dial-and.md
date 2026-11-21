@@ -155,10 +155,6 @@ do some research for any existing core available that we can make use for our we
 
 ### 10 · **assistant:**
 
-[ran: WebSearch — open source browser MOBA game engine multiplayer WebGL github]
-[ran: WebSearch — Colyseus vs Nakama vs Geckos.io multiplayer game server browser authoritative]
-[ran: WebSearch — deterministic lockstep RTS netcode javascript library rollback browser]
-
 **CEO:** Short answer: there's no ready-made MOBA core you can just reskin. What exists are good pieces you'd put together yourself. One thing to set now: aim for "original MOBA with that feel", not a Dota replica. Copied heroes, map and art are a legal problem and give you no identity. The genre is open to anyone; Valve's specific content isn't.
 
 **PM:** What I found:

@@ -147,9 +147,6 @@ the stake here is, content upload (for views and learning) -- which could be onl
 
 ### 8 · **assistant:**
 
-[ran: WebSearch — programmatic video generation pipeline 2026 Remotion AI agent explainer shorts]
-[ran: WebSearch — automated technical explainer video tools Manim Motion Canvas Revideo JSON template video API 2026]
-
 **CEO:** Close v3 by **keeping its brain and dropping its body**. The playbook JSON (story → structured segments → narration) is the valuable part. The browser player was just the first renderer. Freeze it, and send the playbook into a real video renderer.
 
 **PM:** With fixed acts, every video is the same template with different data. So the format, not the topic, is the product:
@@ -202,8 +199,6 @@ i feel short form videos are good marketing front door for customers
 
 ### 10 · **assistant:**
 
-[ran: Agent — Fetch YouTube short metadata]
-
 **CEO:** Look at that title: *"How a single leaf can stop a train."* That's an **incident postmortem** with a better title. A tiny cause leads to a huge effect, and the physics explains why. Your incidents follow exactly that shape: *"How a single slow consumer froze all of Kafka."* The Short is the front door and the hook formula is ready to use: **tiny thing → giant failure → the hidden mechanism**.
 
 **PM:** The funnel then becomes the whole product line, with each step earning the next:
@@ -241,8 +236,6 @@ playbook.json ─► scene spec (entities, camera, beats@timestamps)
 how did they do it ?
 
 ### 12 · **assistant:**
-
-[ran: WebSearch — "How a single leaf can stop a train" short]
 
 I can't tell you for sure, because I can't watch the video. YouTube only gave me the title, and searching it turned up articles about the leaf/pectin physics but nothing about how the video was made. The panel can still reverse-engineer the likely recipe:
 
@@ -355,8 +348,6 @@ its fairly static for me. its the narrative and rich visuals to explain the inci
 
 ### 18 · **assistant:**
 
-[ran: Bash — Peek at the Kafka playbook structure]
-
 **CEO:** Then your format is a **static stage with a moving story**, like a weather forecast: the map stays put, and the meaning moves across it. The diagram is the set. Highlights, evidence and the voice are the performance.
 
 **PM:** I just looked at your Kafka playbook, and it's already that script. `components` is the stage, `timeline` beats have `focus` + `notes` (what lights up, what's said), `dashboard` panels carry a `why`, and `report` is the debrief. The 5-minute version basically **exists**: the timeline runs to about 300s. The 60s version is an **edit**: pick about 6 beats out of the timeline.
@@ -389,8 +380,6 @@ i want a pipeline that can generate this.
 what do you recommend. and are there any opensource ones available?
 
 ### 20 · **assistant:**
-
-[ran: WebSearch — open source automated short video generator github remotion TTS captions MoneyPrinterTurbo short-video-maker revideo 202]
 
 **CEO:** My recommendation is to **build your own pipeline on Remotion and borrow the plumbing from open source**. There's no off-the-shelf tool for "incident explainer with diagrams, graphs and logs." The open-source short-video generators are built around stock footage, and your visuals are your product.
 

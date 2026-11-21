@@ -25,13 +25,6 @@ i want to use commission rules from insurance pdf documents. give me everything 
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — extract commission schedules from insurance carrier PDF contracts LLM]
-[ran: WebSearch — insurance commission statement PDF parsing automation agency software AI]
-[ran: WebSearch — PDF table extraction benchmark 2026 Docling Reducto LlamaParse Textract accuracy]
-[ran: WebSearch — LLM extract business rules from contracts structured output rules engine DSL]
-[ran: WebSearch — incentive compensation management insurance carrier compensation schedule ingestion AI Varicent CaptivateIQ Sapiens]
-[ran: WebSearch — Gemini Claude native PDF vision structured extraction tables accuracy vs OCR pipeline 2026]
-
 # Extracting commission rules from insurance PDFs
 
 ## How hard is this?
@@ -292,8 +285,6 @@ im wrking on contract a dn overriding schedules for insurance commission rules p
 whats the simplest thing that i can build that works and how much ot would cost cost.
 
 ### 6 · **assistant:**
-
-[ran: Skill — claude-api]
 
 # The simplest version that works, and what it costs
 

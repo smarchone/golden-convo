@@ -26,9 +26,6 @@ status: raw
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — Docker cagent multi-agent runtime announcement origin Docker Agent]
-[ran: WebSearch — docker/cagent GitHub first commit David Gageot Djordje Lukic agent builder runtime]
-
 # Docker agents (cagent → "Docker Agent") — origin story
 An open-source, Docker-native runtime where agents and agent teams are declared in YAML and shipped as OCI artifacts · public Sept 2025 · Docker, Inc.
 
@@ -150,8 +147,6 @@ what about skills
 
 ### 6 · **assistant:**
 
-[ran: WebSearch — docker cagent skills SKILL.md agent skills support]
-
 Yes. Docker Agent (cagent) supports the open `SKILL.md` format, the same one Claude Code uses. This comes from search snippets of Docker's docs. I haven't read the full pages or tried it.
 
 **How it works**
@@ -208,8 +203,6 @@ Mostly yes, with one correction: it's closer to an **agent runtime plus harness*
 what does cagent contain ? agent loop, graph, harness ??
 
 ### 10 · **assistant:**
-
-[ran: WebFetch — https://github.com/docker/cagent]
 
 **Short answer:** it has an agent loop and a harness. I found no evidence of a graph. The README confirms the user-facing pieces. The internals below are my general understanding, not verified, because the README doesn't cover the loop or `pkg/` layout.
 

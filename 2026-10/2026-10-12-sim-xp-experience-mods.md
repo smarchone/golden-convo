@@ -23,8 +23,6 @@ status: raw
 help me do research about @intent.md
 
 **2. assistant:**
-[ran: read intent.md]
-[ran: fetched the 7 linked simulators + breakscale.tech; 11 web searches on incident-drill platforms, Uptime Labs, Wheel of Misfortune, OSS sims, AI incident simulators, SadServers/YouBrokeProd, Gary Klein / tacit knowledge, AI skill-formation study, simulation-training transfer evidence]
 
 ## Research: simulated-experience training for engineers
 
@@ -75,7 +73,6 @@ I can turn this into a shareable page or compare a few architecture options for 
 log this as a markdown file
 
 **4. assistant:**
-[ran: wrote research.md]
 
 I saved the research to `research.md`, next to `intent.md`. It has the competitor landscape, the case for and against pursuing it, nine feature ideas, a suggested next step and all the sources.
 

@@ -160,10 +160,6 @@ is anyone doing this already ?
 
 ### 10 · **assistant:**
 
-[ran: WebSearch — AI stick figure comic generator from story text]
-[ran: WebSearch — AI storyboard generator from text 2026]
-[ran: WebSearch — AI comic strip app retell stories narrator style remix social]
-
 Partly. The pieces exist, but I didn't find anyone who has put them together the way you're describing. That's based on three quick searches and the vendors' own pages; I haven't used any of these products.
 
 **What already exists**

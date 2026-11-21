@@ -24,16 +24,6 @@ how is the youtube short was made using agents ? https://www.youtube.com/shorts/
 
 ### 2 · **assistant:**
 
-[ran: search_web — "nRGQ4tU0-R0" OR "youtube.com/shorts/nRGQ4tU0-R0"]
-[ran: search_web — youtube shorts "nRGQ4tU0-R0" agents]
-[ran: run_command — ls -la]
-[ran: search_web — "How a single leaf can stop a train" youtube shorts channel]
-[ran: search_web — "How a single leaf can stop a train" AI OR agents OR Remotion OR Manim OR ElevenLabs]
-[ran: search_web — "nRGQ4tU0-R0" site:x.com OR site:reddit.com OR site:github.com OR site:news.ycombinator.com]
-[ran: search_web — "nRGQ4tU0-R0" site:youtube.com]
-[ran: search_web — "youtube.com/watch?v=nRGQ4tU0-R0" OR "youtu.be/nRGQ4tU0-R0"]
-[ran: search_web — "How a single leaf can stop a train" "nRGQ4tU0-R0"]
-
 I couldn't find a public breakdown, repo, or creator postmortem documenting the exact toolchain behind **`nRGQ4tU0-R0`** (*"How a single leaf can stop a train"*), and I can't watch the video directly from this environment to inspect its visual style (e.g., 2D motion graphics vs. 3D vs. AI-generated clips).
 
 If you're asking **how a Short like this is produced using an AI agent pipeline**, here is the standard multi-agent architecture used to build 60-second science/engineering explainers end-to-end:
@@ -78,12 +68,6 @@ If you'd like, describe the visual style of `nRGQ4tU0-R0` (e.g., 3D animation, 2
 describe how exactly this short could have been done. all other shorts on this channel also has similar vibe. this seems like a  decent educational short.
 
 ### 4 · **assistant:**
-
-[ran: search_web — "How a single leaf can stop a train" "nRGQ4tU0-R0" OR "5p coin" OR "1500 bar" OR "Sandite" youtube]
-[ran: search_web — "nRGQ4tU0-R0" channel OR author OR uploaded]
-[ran: search_web — site:youtube.com/shorts "How a single leaf can stop a train"]
-[ran: search_web — "quietly-works" OR "@quietly-works" youtube OR github OR remotion OR agents]
-[ran: search_web — "quietly-works" youtube shorts]
 
 Because `@quietly-works` hasn't published a public repo or behind-the-scenes breakdown, we can't see their exact internal codebase—so this is a concrete reconstruction of how a consistent, repeatable educational Short like *"How a single leaf can stop a train"* (`nRGQ4tU0-R0`) can be produced using an agent pipeline.
 

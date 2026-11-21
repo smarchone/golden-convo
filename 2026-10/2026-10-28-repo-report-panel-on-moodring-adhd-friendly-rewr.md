@@ -28,14 +28,7 @@ status: raw
 
 I'll read the repo itself (README, docs, code layout, recent history) as the source, then write the report panel.
 
-[ran: Bash — List repo files and history]
-[ran: Bash — Read READMEs and PRD]
-[ran: Bash — Read architecture, rules, results docs]
-
 The docs give the product story. Now a quick pass over the code to check what's actually running versus what the docs claim: API endpoints, the policy, the research models, and size.
-
-[ran: Bash — Inspect API endpoints, code size, models, CI]
-[ran: Bash — Read endpoints, policy, sentiment, research notes, CI]
 
 I've read enough to write the report. This repo is a codebase, not a talk, so I used the README, the four spec docs (PRD, architecture, data models, rules), the evidence docs (review fixes, capacity results, provider review, SEC access), the API routes, the policy code and CI as the source.
 
@@ -212,10 +205,6 @@ validate this project idea against current ecosystem. i want to see the USP of t
 ### 8 · **assistant:**
 
 I'll look up current competitors and compare MoodRing against them, then keep the answer short.
-
-[ran: WebSearch — best paper trading apps for beginners 2026]
-[ran: WebSearch — AI stock trading education app explains trades beginners 2026]
-[ran: WebSearch — open source paper trading simulator backtesting sentiment self-hosted]
 
 You asked what makes MoodRing unique compared with what's out there. Short answer: not much yet, but one strong angle exists.
 

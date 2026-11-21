@@ -27,10 +27,6 @@ status: raw
 
 ### 2 · **assistant:**
 
-[ran: WebSearch — Vercel AI Cloud agents stack AI SDK AI Gateway Sandbox Workflow Fluid compute 2026]
-[ran: WebSearch — Vercel Ship 2026 announcements agents]
-[ran: WebFetch — https://vercel.com/blog/vercel-ship-2026-recap]
-
 # Intuition: Vercel, from the web platform to the agent stack
 
 > **Freshness note:** Vercel ships fast. I checked the agent-stack details below against Vercel's [Ship 2026 recap](https://vercel.com/blog/vercel-ship-2026-recap) (June 2026). Product names may have changed since.
@@ -197,10 +193,6 @@ I can go deeper on one piece next, for example how `"use workflow"` replay works
 /intuition similarly do for cloudflare
 
 ### 4 · **assistant:**
-
-[ran: WebSearch — Cloudflare agents 2026 Agents SDK Durable Objects Sandbox Containers Workflows announcements]
-[ran: WebSearch — Cloudflare Birthday Week 2026 announcements]
-[ran: WebFetch — https://www.cloudflare.com/pl-pl/press/press-releases/2026/cloudflare-expands-its-agent-cloud-to-power-the-next-generati]
 
 # Intuition: Cloudflare, from the network to the agent stack
 

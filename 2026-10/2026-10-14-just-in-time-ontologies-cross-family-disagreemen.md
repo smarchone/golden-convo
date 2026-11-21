@@ -37,12 +37,6 @@ get the transcript
 
 ### 4 · **assistant:**
 
-[ran: Bash — Download video title and English subtitles]
-[ran: Bash — Retry subtitle download with other YouTube clients]
-[ran: Bash — Retry English auto-subtitle download]
-[ran: Bash — Fetch transcript using youtube-transcript-api]
-[ran: Bash — Print transcript]
-
 I got the auto-generated transcript and wrote the shots from it. Auto-captions mangle names, so the model names "Jev" and "Luna" are marked *(unverified)*.
 
 # Just-in-Time Ontologies, distilled
