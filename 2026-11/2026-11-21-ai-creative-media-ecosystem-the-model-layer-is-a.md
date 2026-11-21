@@ -1,7 +1,7 @@
 ---
 schema: 1
 id: 2026-11-21-ai-creative-media-ecosystem-the-model-layer-is-a
-title: "AI creative media ecosystem: the model layer is a commodity; value is in taste, continuity, distribution and rights — plus 3D-first Blender kits vs gen video vs Remotion"
+title: "AI creative media ecosystem: the model layer is a commodity; value is in taste, continuity, distribution and rights — plus Blender kits vs gen video vs Remotion/HyperFrames, deconstructed Shorts, and Blender→Remotion layering"
 why: would like to understand the current popular way of doing creative work. open source pipelines, leading companies + cost model intuition (buy vs build), more creative works that i missed — do research and help me understand the ecosystem
 why_source: user
 harness: claude-code
@@ -10,11 +10,11 @@ model: claude-opus-5-5
 session_id: 34daf441-9fce-441e-adbe-cf0856dba70a
 source_path: ~/.claude/projects/-Users-smarch-Documents-proj-claude-spark-ideas/34daf441-9fce-441e-adbe-cf0856dba70a.jsonl
 started: "2026-11-21T04:17:33.541Z"
-captured: "2026-11-21T08:42:54Z"
+captured: "2026-11-21T09:57:50Z"
 cwd: ~/Documents/proj/claude/spark/ideas
-turns: 26
+turns: 46
 complete: true
-golden_turns: [2, 4, 8, 22, 26]
+golden_turns: [2, 4, 8, 22, 26, 28, 42, 46]
 labels: [generative-media, platforms, build-vs-buy, competitive-analysis, learning]
 status: raw
 ---
@@ -981,3 +981,380 @@ Want me to scaffold that combined skeleton (Blender `build.py` → frames → Re
 ### 26 · **assistant:**
 
 [ran: Bash — Extract full session to temp and inspect new turns]
+
+### 27 · **user:**
+
+can you deconstruct what couldve been used for https://www.youtube.com/shorts/2BbNv2VwBl8
+
+### 28 · **assistant:**
+
+[ran: Bash — Download the Short and its metadata]
+[ran: Bash — Retry download with alternate clients]
+
+Downloading got blocked, so I'll watch it in the browser instead.
+
+[ran: Bash — Open the Short in the browser]
+[ran: Bash — List browser tool commands]
+[ran: Bash — Get video duration and description]
+[ran: Bash — Capture frames at 10 timestamps]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t1.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t15.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t45.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t80.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t120.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t6.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.I92NOp8UGH/shots/t140.png]
+[ran: Bash — Close the browser session]
+
+I looked at 7 frames of the Short, spread across its 2m26s. This one isn't Blender or generated video. It's the third option we compared, a **code-driven 2D explainer**: very likely Remotion, or something similar, plus a hand-drawn diagram library. There's no AI in the visuals at all; AI is probably only in the script and voice.
+
+## What's on screen
+- **Fixed layout:** an "Into AI / intoai.pub" logo top-left, a white background, a diagram in the middle, captions at the bottom. Every Short on the channel looks like this.
+- **Hand-drawn diagrams:** slightly wobbly boxes, arrows, timelines, number lines, a person icon, a stack of documents, a monitor with a progress bar. That's the Excalidraw look (the **rough.js** library) in a handwriting font.
+- **Diagrams build up with the narration.** At 6s you see only the person and the note. By 15s the "+ Claude →" box, the "Riemann Hypothesis" title, the 1859–2026 timeline and "Not yet verified" have appeared. Each one shows up as the narration mentions it.
+- **Word-by-word captions:** spoken words are black and upcoming words grey. That needs word-level timestamps from the voiceover.
+- **Small set of colours:** black, grey, red for warnings and claims, purple for Claude, teal for "proved". The colour carries meaning.
+- **Recap ending:** the last scene re-assembles earlier pieces (the Claude box, the title, the 167-year timeline, "A claim").
+
+## Likely pipeline
+| Step | What they probably use | Confidence |
+|---|---|---|
+| Source | Their own newsletter post (intoai.pub). One article becomes one Short | High (the CTA says so) |
+| Script | An LLM condenses the article into about 2 minutes of narration | Likely |
+| Voice | Their own recorded voice or ElevenLabs. **I didn't listen to the audio**, so I can't say which | Unknown |
+| Word timings | ElevenLabs alignment output, or Whisper run on the recording | High (the captions need it) |
+| Scene spec | An LLM turns the script into scenes made of a few primitives (`box`, `arrow`, `timeline`, `person`, `docStack`, `numberLine`, `badge`, `monitor`), each tied to the word that triggers it | Likely |
+| Render | Remotion (React): rough.js SVGs with a fade-in or draw-on, captions highlighting word by word, a fixed brand frame | Likely. Could also be Motion Canvas, or Manim with a sketch style. It's clearly not Blender and not generated video |
+| Output | 1080×1920 at 146s. YouTube accepts Shorts up to 3 minutes | Confirmed |
+
+**Possible no-code route:** Napkin AI produces diagrams in a very similar sketchy style. But the narration-synced build-up and the karaoke captions point to code.
+
+## Why it works
+- **Ships the same day:** the video is dated Nov 20, a day after the news. Code pipelines are fast enough to react to news.
+- **Content is diagrams of ideas:** perfect for this format. Nothing needs realism.
+- **Cheap to make:** a few dollars of TTS and a few minutes of render. Near-zero per video.
+- **Feels handmade:** the sketch style doesn't read as AI slop, which helps with the YouTube policy.
+
+## Building your own copy
+About 2–4 days in Remotion:
+1. `<Brand/>` frame and `<Captions words={...}/>` with the active word in black.
+2. 8–10 rough.js primitives, each with an `appearAt` word index.
+3. A JSON scene spec written by the LLM, e.g. `{ scenes: [{ items: [{type:"timeline", from:1859, to:2026, label:"Open for 167 years", at:"167"}] }] }`
+4. An ElevenLabs voice with timestamps, mapped onto `at` words.
+5. `npx remotion render`.
+
+After that, each video is: paste an article, wait about 10 minutes, review. It's the Remotion row of our comparison, made distinctive by **taste** (the sketch style and colour meaning) rather than technology.
+
+Want me to scaffold this sketch-explainer template (Remotion, rough.js primitives, word-synced captions, a sample spec) in `ideas/`?
+
+### 29 · **user:**
+
+where does openart fit in all these ?
+
+### 30 · **assistant:**
+
+[ran: WebSearch — OpenArt AI 2026 features pricing character consistency story video models revenue]
+
+OpenArt is an **aggregator in the gen-video lane**, the same layer as Higgsfield, Krea and Freepik. It has nothing to do with the Blender or Remotion pipelines.
+
+## Where it sits
+| Lane | Players | OpenArt? |
+|---|---|---|
+| Gen video (text → storyboard → keyframes → video) | **Aggregators:** Higgsfield, Krea, Freepik, **OpenArt**. **Model labs:** Veo, Kling, Runway | ✅ here |
+| Blender (3D kits) | KitBash3D, BlenderKit, Blender MCP | ❌ |
+| Remotion (code-driven 2D) | Remotion, rough.js, Motion Canvas | ❌ |
+
+## What sets it apart
+It makes no models of its own. Instead it resells 40–100+ models (Kling, Veo, PixVerse and others) and competes on the **project-level tools** we said were missing:
+- **Character Builder:** reusable characters made from reference images or a text brief. It goes straight at continuity, pain point #1.
+- **OpenArt Director:** chat-based direction of a multi-shot sequence, with storyboarding and scene refinement. This is the "creative producer agent" layer.
+- **One-Click Story:** a prompt becomes a sequence of connected visuals. Good for comics, picture books and microdrama pilots.
+- **Origins (from my background knowledge):** it began as a Stable Diffusion and ComfyUI community for sharing prompts and workflows, so it caters more to hobbyist creators than Higgsfield's marketing and ads crowd.
+
+## Economics
+- **Plans:** about $14 / $34 / $56 / $240 a month. A free trial gives 40 credits for 7 days.
+- **Video uses up credits fast:** a 5-second Kling 3.0 clip is about 175 credits, compared with about 70 for PixVerse. Reviewers complain about the credit maths and refunds.
+- **"Who earns" view:** it has the aggregator's usual risks (thin margins, depending on its suppliers, Sora-style shutdowns). It's much smaller than Higgsfield; I found only a 2023 seed round of about $5M and no revenue figures.
+
+## When to use it
+- **Good for:** prototyping character-driven stories (microdrama pilots, comics, kids' books) without building a ComfyUI and LoRA pipeline. You get consistency and a storyboard UI ready-made.
+- **Not for:** the sketch-explainer Short (use Remotion) or cutaway builds (use Blender).
+- **Compared with Higgsfield:** Higgsfield is the place for cinematic camera presets and ads. OpenArt is for consistent characters and stories.
+
+**For you, it's a useful benchmark.** If you ever build the microdrama continuity tool, OpenArt's Character Builder and Director are the closest products already doing it. Try them first to see where they break.
+
+Sources:
+- [diyai OpenArt pricing](https://diyai.io/ai-tools/video-generation/openart-pricing/) · [aireiter review](https://aireiter.com/blog/openart-ai-review-2026-pricing) · [the-ai-future review](https://the-ai-future.com/reviews/open-art-ai) · [droidcrunch](https://droidcrunch.com/openart-review/) · [promptsrush](https://promptsrush.com/blog/openart-review) · [pixara pricing](https://www.pixara.ai/blogs/openart-pricing) · [toolchase](https://toolchase.com/tool/openart/) · [aiblogfirst](https://aiblogfirst.com/openart-ai-review/) · [lorphic](https://lorphic.com/openart-ai-pricing-plans-credits-and-cost-breakdown/)
+
+### 31 · **user:**
+
+no pipeline prompts only ?
+
+### 32 · **assistant:**
+
+Yes, there's a prompt-only route in each lane. A prompt-only tool is still a pipeline, though; it's just someone else's, hidden behind a text box. You give up control and a distinctive look in exchange for speed.
+
+## Prompt-only options by lane
+| Lane | Prompt-only tools | What you get | What you lose |
+|---|---|---|---|
+| **Gen video** | OpenArt One-Click Story or Director, Higgsfield presets, Google Flow, CapCut AI | Story → shots → clips in one place | Continuity across many shots, fine control, cost (credits run out fast) |
+| **2D explainer** (like the Riemann Short) | Napkin AI (diagrams from text), and "text to explainer" apps such as InVideo or Pictory | A diagram or slide video in minutes | Diagrams synced to the narration, your own look. Everyone's output looks the same |
+| **3D** | Blender MCP (prompt → scene), Meshy or Tripo (prompt → model) | One scene or asset | Repeatable series. Each prompt starts from scratch, with no reusable kit |
+
+## The middle path: prompt an agent that builds the pipeline
+With Claude Code you still only type prompts, but the agent writes and runs the pipeline (the Remotion template, the Blender script, the ComfyUI graph), and **you own it**.
+- **First video:** about the same effort as a prompt-only app.
+- **Second video and later:** reuses the template, so it's cheaper, faster and consistent.
+- **Your look:** the style becomes yours, not the app's preset.
+
+## Rule of thumb
+- **One-off or experiment:** prompt-only app. Don't build anything.
+- **A series (same format, weekly):** prompt an agent to build the pipeline once, then just prompt it each time.
+- **The Riemann Short is the second kind.** A one-off prompt can't keep that consistent brand frame and those timed diagrams video after video. That's a template.
+
+I haven't checked current features for Google Flow, Napkin, InVideo or Pictory this session, so verify before you rely on them.
+
+Want me to test it? I can try reproducing the Riemann-style Short twice: once with a prompt-only app, and once with a single prompt to Claude Code that builds the Remotion template. Then compare the results.
+
+### 33 · **user:**
+
+https://masonry.so/ also same ?
+
+### 34 · **assistant:**
+
+[ran: Agent — Summarize masonry.so]
+
+Mostly yes. Masonry is another aggregator in the gen-video lane, but it's aimed at marketers rather than storytellers, and it has one feature that matters to you: **an MCP server and a CLI**.
+
+## Masonry vs OpenArt vs Higgsfield
+| | **Masonry** | **OpenArt** | **Higgsfield** |
+|---|---|---|---|
+| Layer | Aggregator (40 image + 15 video models) | Aggregator (40–100+) | Aggregator (15+) plus its own Soul model |
+| Audience | **Marketers and businesses:** product ads, UGC ads, brand kits, social posts, interior and real-estate design | Storytellers: comics, stories, characters | Cinematic ads and creators |
+| Core strength | Templates plus one canvas ("describe it, compare models, ship") | **Character Builder + Director** (continuity across a story) | Camera presets, viral effects |
+| Consistency | Keeping a *product* consistent across a set of images | Keeping a *character* consistent across shots | Presets |
+| **Agent access** | ✅ **MCP + CLI**, works with Claude Code, Cursor and others | ❌ none that I found | ❌ none that I found |
+| Price | $20 / $50 / $100 a month for 2k / 10k / 20k credits. 50 free credits | $14–240 a month | $15–99 a month |
+
+**Costs from Masonry's own page:** about $0.02 per image and about $0.30 per video. Its "~66 videos" figure almost certainly assumes the cheapest video models. Veo or Kling will cost more per clip, as on every other aggregator.
+
+## Why the MCP matters
+Masonry fits the **middle path** from the last answer, "prompt an agent that builds the pipeline":
+- From Claude Code you could script a series ("10 product-ad variants, same product, three models compared") and Masonry handles model routing and billing.
+- You get dozens of models behind one API key and one bill, without managing fal or Replicate accounts.
+- **The catch:** you're tied to an aggregator, with the usual margin and Sora-style supplier risk.
+
+## Where it fits
+- **Prompt-only, marketing work:** Masonry's templates.
+- **Prompt-only, stories and characters:** OpenArt.
+- **An agent driving models:** Masonry's MCP, or the fal/Replicate APIs directly. The APIs are cheaper; Masonry is easier.
+- **Not for:** the Riemann-style explainer (Remotion) or cutaway builds (Blender).
+
+**Caveat:** this comes from Masonry's homepage and pricing page only. I didn't check what its MCP tools actually expose, or which plan they require.
+
+Want me to look at the MCP's tool list (`masonry.so/mcp`), to see whether it's a real option for driving a series from Claude Code?
+
+### 35 · **user:**
+
+where does https://hyperframes.studio/ fit.. keep it short
+
+### 36 · **assistant:**
+
+[ran: Agent — Summarize hyperframes.studio]
+
+HyperFrames fits the **Remotion lane**, built from the start for agents. It's from HeyGen.
+
+- **What it is:** an open-source tool (Apache-2.0) that turns HTML into video. You describe the video, an agent (Claude Code, Codex or Cursor) writes the HTML, CSS and GSAP animation, and headless Chrome plus FFmpeg renders the MP4.
+- **Compared with Remotion:** you write plain HTML instead of React, with no build step. The license is more permissive, so there are no company-size thresholds. Remotion's cloud rendering is more mature. There's a `/remotion-to-hyperframes` skill for migrating.
+- **Agent skills included:** `npx skills add heygen-com/hyperframes`. One skill is notable: **`/reverse-any-video`**, which "makes a video like one you love."
+- **Price:** the framework, skills and local renders are free. The Studio app's Pro plan ($25/month) adds a built-in agent and third-party AI clips.
+
+**For you, it's probably the best fit for the Riemann-style sketch explainer.** The format is all HTML and animation, agents handle plain HTML more easily than JSX, and `/reverse-any-video` might rebuild that Short's template almost directly.
+
+This comes from HeyGen's own pages and README, so the comparison with Remotion favours them.
+
+Want me to try installing the skills and running `/reverse-any-video` on that Short?
+
+### 37 · **user:**
+
+this seems better than remotion
+
+### 38 · **assistant:**
+
+For what you want (agent-driven explainer Shorts), HyperFrames is probably the better pick. Remotion still wins in a few places, and those are the ones to check before committing.
+
+**Where HyperFrames is better for you**
+- **Agents write it more reliably:** plain HTML, CSS and GSAP, with no React state, bundler or JSX to get wrong.
+- **Licence:** Apache-2.0, free at any company size. Remotion needs a company licence above a small team size.
+- **Skills come with it:** `/reverse-any-video`, plus a block catalogue (about 450) and `frame.md` brand specs. Remotion has none of that built in.
+- **Iteration:** `index.html` plays as-is, so preview and edit loops are fast.
+
+**Where Remotion still wins**
+- **Maturity:** years of production use, a large community, Lambda rendering at scale. HyperFrames is newer, so expect rough edges.
+- **Complex, stateful compositions:** React's components and props are cleaner for large template libraries with data-driven variants.
+- **Neutrality:** HyperFrames is a HeyGen project that sells a Pro tier. If it drifts toward HeyGen's needs, Remotion's long track record is safer. The Apache licence means you can fork, so the risk is low.
+
+**How to decide:** start a new agent-first project on HyperFrames. Choose Remotion if you need cloud rendering at scale or already have a React template library.
+
+The quickest real test is the Riemann Short. Run `/reverse-any-video` on it and see whether you get a reusable template in under an hour. Want me to try?
+
+### 39 · **user:**
+
+HeyGen is an prompt based aggregator  ?
+
+### 40 · **assistant:**
+
+Mostly no. HeyGen is closer to a **model company with its own app**, in one niche: **AI avatars and talking-head video**.
+
+- **Own models:** avatars (Avatar 6, which appeared in Masonry's lineup), voice cloning, lip-sync, and video translation and dubbing. Other aggregators resell these.
+- **It is prompt-based:** type a script, pick an avatar, get a presenter video. It's built for business: training, sales outreach, localization.
+- **It does some aggregating:** newer products such as HyperFrames Pro bundle third-party image, video and music models. Its core is still its own avatar technology.
+
+| | HeyGen | Masonry / OpenArt / Higgsfield |
+|---|---|---|
+| Makes its own models | ✅ avatars, lip-sync, dubbing | ❌ (Higgsfield partly) |
+| Sells | A finished format (a presenter video) | Access to many models |
+| Moat | Avatar quality and the enterprise customer base | Ease of use and templates |
+
+**Why it built HyperFrames:** HeyGen is moving from "avatar videos" toward "any video an agent can build", with its avatars slotting into HTML compositions. That puts it in direct competition with Remotion and the aggregators.
+
+**Missing check:** I didn't look up HeyGen's 2026 revenue or product lineup in this session, so this is from background knowledge plus the pages we read.
+
+### 41 · **user:**
+
+how is this video made : https://www.youtube.com/shorts/CGgVjtqIPjY
+
+### 42 · **assistant:**
+
+[ran: Bash — Open the Short and read its metadata]
+[ran: Bash — Capture frames and crop to the video area]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t4.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t20.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t40.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t60.png]
+[ran: Read — /var/folders/rx/c0b_6gw93p3bdq4qm_vlzkg40000gn/T/tmp.lyiMeCkUF3/shots2/t85.png]
+
+This one is 3D-rendered, almost certainly in **Blender**. It's the "3D kit" lane from our comparison, close to the cutaway-build format. The channel (@OddFrameFilms67) has a compilation called *"1 Hour of Engineering: 49 Machines Taken Apart in 3D"*, which makes it a series with a reusable kit.
+
+## Evidence from the frames
+- **Custom livery that stays consistent:** "ODDFRAME" is painted on the fuselage, the decals stay sharp, and they're identical in every shot and from every angle. Generated video can't keep text that consistent. This is a 3D model with the channel's own texture.
+- **A bought F-111 model, rebranded:** the airframe is detailed, but the pilot is a simple low-poly figure with a white ball helmet. That combination points to a stock model (Sketchfab or CGTrader) with a quick figure added.
+- **Reusable environments:** a sky gradient plus a satellite-photo ground plane for altitude shots, and a desert floor with scattered grass for the landing. Swap the aircraft and the same sets work for the next machine.
+- **Simple effects:** rocket flame, a smoke trail, a parachute on a line, and motion blur on the ground. All standard Blender particles and keyframes.
+- **Chase-camera rig:** the camera stays locked to the subject in every shot, a template rig reused each time.
+- **Finishing:** bold 2–3-word white captions with a black outline (CapCut-style auto-captions) and a text watermark.
+- **Low resolution:** 608×1080 with heavy compression. They render fast and small, likely EEVEE, and don't chase quality.
+
+## Likely pipeline
+**"Why did X do Y?" topic → LLM script (~90s) → voiceover (I didn't listen, so I can't say whether it's AI) → Blender: stock model + their livery + reused sky and ground sets + chase-cam rig + simple effects → EEVEE render → CapCut auto-captions and watermark → post**
+
+## Why it works (41k likes)
+- **The hook is a curiosity question** about real engineering, with a payoff in 90 seconds.
+- **The kit compounds:** the sets, rigs, effects and caption style are all reused, so each new machine is mostly "buy a model, put the logo on, animate the key moment". That's how they reached 49 machines.
+- **Branding inside the 3D scene** (the livery) makes reposts traceable back to them, and makes the series recognisable.
+- **Low production bar:** a cheap pilot, low resolution and simple shading. Story beats polish.
+
+## Compared with the Riemann Short
+| | Riemann (intoai) | F-111 (OddFrame) |
+|---|---|---|
+| Lane | Code-driven 2D (Remotion/HyperFrames style) | Blender 3D kit |
+| What's reused | Diagram primitives + brand frame | Environments, rigs, effects, livery |
+| Cost per new video | Minutes | A few hours (the model and its key animation) |
+| Moat | Taste in the sketch style | The kit and the format |
+
+This video is essentially a working example of the cutaway-kit sketch from earlier, minus the cutaway, plus branding painted into the scene. Want me to update that kit design with what this channel does (a livery slot, a chase-cam preset, satellite-ground and desert sets)?
+
+### 43 · **user:**
+
+what is cutaway mean ?
+
+### 44 · **assistant:**
+
+A **cutaway** is a view where part of an object's outside is removed so you can see inside it, as if it had been sliced open.
+
+- **Classic example:** a technical drawing of a car engine with half the casing cut off, showing the pistons inside. You see the same thing in museum exhibits and *Popular Mechanics*-style illustrations.
+- **In a 3D Short:** a plane sweeps through the model and slices it away, revealing the internal parts while the outer shell stays visible around them.
+- **Why it's popular:** it answers "how does this work inside?" visually, with no talking-head explanation needed.
+
+**Compared with the F-111 Short:** that video *isn't* a cutaway. It shows the outside of the jet and the capsule separating. A cutaway version would slice the fuselage open to show the rocket motor, seats and the explosive charge before the ejection.
+
+**Related terms:**
+- **Exploded view:** the parts pulled apart and floating, as in IKEA instructions. The OddFrame compilation's "Machines Taken Apart" probably means this.
+- **Cross-section:** a flat slice through an object, showing only the cut surface.
+- **X-ray view:** the outer shell made semi-transparent so the insides show through.
+
+### 45 · **user:**
+
+can we compose the assets of blender to generate the base frame layer for further remotion composition ?
+
+### 46 · **assistant:**
+
+Yes. Blender renders the visual base layer, Remotion (or HyperFrames) draws everything on top, and one shared spec keeps them in sync. This is the "Blender as engine, Remotion as finishing layer" combination from the earlier comparison.
+
+## How it fits together
+```
+spec.json + vo.mp3 (beats from the voiceover timestamps)
+        │
+        ├──► Blender (headless)
+        │      ├─ frames/base_####.png     ← 3D render (optionally split into layers)
+        │      └─ anchors.json             ← screen x,y for each tracked 3D point, per frame
+        │
+        └──► Remotion
+               ├─ <BaseLayer>  plays the frames/video
+               ├─ <Labels>     callouts pinned to anchors (they follow the 3D parts)
+               ├─ <Captions>   word-by-word, from the voiceover timestamps
+               ├─ <Diagrams>   2D overlays (arrows, timelines, rough.js)
+               └─ <Brand>      logo, watermark, CTA
+                    ↓
+                 final.mp4
+```
+
+## What Blender exports
+| Output | Format | Why |
+|---|---|---|
+| **Base layer** | PNG sequence, or ProRes 4444 / WebM VP9 if you need transparency | Lossless, frame-exact, can be re-rendered in parts |
+| **Separate layers** (optional) | Background / subject / effects as separate passes | Remotion can then slot text *between* layers, e.g. behind the jet but in front of the sky |
+| **Anchors** | `anchors.json`: `{ "reactor": [[x,y,visible], …per frame] }` | Labels follow moving 3D parts |
+| **Camera and timing** | fps and frame count in the same spec | Both tools use one frame clock |
+
+**Anchor export (Blender side, short version):**
+```python
+from bpy_extras.object_utils import world_to_camera_view
+for f in range(scene.frame_start, scene.frame_end + 1):
+    scene.frame_set(f)
+    for name, ob in anchors.items():
+        p = world_to_camera_view(scene, cam, ob.matrix_world.translation)
+        out[name].append([p.x, 1 - p.y, p.z > 0])   # flip Y for screen space
+```
+Put empties (Blender's invisible marker objects) on the parts you want labelled, such as `reactor` or `capsule_motor`. Those become the tracked points.
+
+**Remotion side:**
+```tsx
+const frame = useCurrentFrame();
+<AbsoluteFill>
+  <Img src={staticFile(`frames/base_${String(frame).padStart(4,"0")}.png`)} />
+  {Object.entries(anchors).map(([k, pts]) => {
+    const [x, y, vis] = pts[frame];
+    return vis && <Callout key={k} x={x*1080} y={y*1920} label={labels[k]} />;
+  })}
+  <Captions words={words} />
+  <Brand />
+</AbsoluteFill>
+```
+
+## Why split it this way
+- **Each tool does what it's good at:** Blender handles 3D, light and physics, and Remotion handles text, layout and timing. Text rendered in Blender looks worse and is painful to edit.
+- **Cheap changes:** fix a typo or a caption and re-render only the Remotion pass, which takes seconds instead of a full 3D re-render.
+- **Reuse:** one 3D render can feed several versions (different languages, hooks, CTAs, aspect ratios) with no 3D work.
+- **Agent-friendly:** both sides read the same `spec.json`, so an LLM edits one file to change the video.
+
+## Things that will bite
+- **Colour mismatch:** Blender's view transform (AgX or Filmic) versus sRGB in Remotion. Bake the colour into the frames and set Remotion to sRGB, or overlays will look washed out.
+- **Transparency edges:** Blender's PNG transparency can show dark fringes in Chrome. Fix with straight alpha or by rendering a solid background.
+- **Frame drift:** lock the fps everywhere and convert beats to frames in *one* place (the spec), never separately in each tool.
+- **Disk size:** a 40s 1080×1920 PNG sequence is about 1–3 GB. Use an MP4 base layer (CRF ~16) when you don't need transparency.
+- **Hidden parts:** an anchor behind geometry is still "visible" by the `p.z > 0` test. Add a raycast check, or mark visibility windows by hand in the spec.
+
+**HyperFrames works the same way:** swap the React components for HTML with `data-start` timing. The base layer goes in as a `<video>` or image sequence, and anchors drive absolutely positioned elements.
+
+Want me to scaffold the minimal version? It would be a Blender script that renders a rotating cube plus `anchors.json`, and a Remotion composition with one tracked label and captions, all runnable on your Mac.
