@@ -127,6 +127,30 @@ svg { display: block; flex: none; }
 }
 .prog.sliding { transition: width .18s ease; }
 
+/* ---------- Try-slide hint ---------- */
+.seg { position: relative; }
+.try-slide {
+  position: absolute; top: calc(100% + 12px); right: 0; z-index: 20;
+  width: 248px; padding: 12px 14px;
+  background: var(--panel); border: 1px solid var(--accent-line); border-radius: 10px;
+  box-shadow: var(--pop-shadow);
+  font-size: 13px; line-height: 1.45; color: var(--ink-2); white-space: normal;
+}
+.try-slide::before {
+  content: ""; position: absolute; top: -6px; right: 30px;
+  width: 10px; height: 10px; transform: rotate(45deg);
+  background: var(--panel); border-left: 1px solid var(--accent-line); border-top: 1px solid var(--accent-line);
+}
+.try-slide b { color: var(--ink); font-weight: 600; }
+.try-slide .k-key, .try-slide .k-tap { white-space: nowrap; color: var(--ink); }
+.try-slide .row { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; }
+.try-slide .row button { padding: 4px 10px; font-size: 12.5px; }
+.try-slide [data-view] { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .try-slide { animation: tip-in .25s ease-out both .6s; }
+  @keyframes tip-in { from { opacity: 0; transform: translateY(-4px); } }
+}
+
 /* ---------- Index ---------- */
 .index-wrap { max-width: 720px; margin: 0 auto; padding: 48px 28px 72px; }
 .hero {
@@ -775,6 +799,10 @@ body.reading #app { flex: 1; min-height: 0; display: flex; flex-direction: colum
           <span class="seg" role="group" aria-label="View">
             <button data-view="normal" aria-pressed="true">Normal</button>
             <button data-view="slide" aria-pressed="false">Slide</button>
+            ${seenSlideHint() ? '' : `<div class="try-slide" role="dialog" aria-label="Try Slide mode">
+              <b>Try Slide mode:</b> one exchange per screen, like a deck. Step with <span class="k-key">← →</span><span class="k-tap">a tap left or right</span>.
+              <div class="row"><button class="btn ghost" data-hint-close>Not now</button><button class="btn" data-view="slide">Try it</button></div>
+            </div>`}
           </span>
         </div>
         <i class="prog"></i>
@@ -818,6 +846,21 @@ body.reading #app { flex: 1; min-height: 0; display: flex; flex-direction: colum
     if (path === lastTracked || typeof gtag !== 'function') return;
     lastTracked = path;
     gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: s ? s.fm.title : 'Golden Convo' });
+  }
+
+  // Shown on up to HINT_MAX post views; trying Slide mode retires it for good.
+  const HINT = 'slide_hint_seen', HINT_MAX = 3;
+  const hintCount = () => +(document.cookie.match(new RegExp(`(?:^|; )${HINT}=(\\d+)`))?.[1] || 0);
+  const setHintCount = n => { document.cookie = `${HINT}=${n}; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`; };
+  function seenSlideHint() {
+    const n = hintCount();
+    if (n >= HINT_MAX) return true;
+    setHintCount(n + 1);
+    return false;
+  }
+  function closeSlideHint(forGood) {
+    if (forGood) setHintCount(HINT_MAX);
+    app.querySelector('.try-slide')?.remove();
   }
 
   let slideIdx = -1, typing = null;
@@ -1093,8 +1136,10 @@ body.reading #app { flex: 1; min-height: 0; display: flex; flex-direction: colum
     }
     if (e.target.closest('[data-clear]')) { activeLabel = null; renderIndex(); return; }
     const s = sessions.find(x => x.id === app.dataset.current);
+    if (e.target.closest('[data-hint-close]')) { closeSlideHint(false); app.querySelector('.screen')?.focus({ preventScroll: true }); return; }
     const view = e.target.closest('[data-view]');
     if (s && view) {
+      closeSlideHint(true);
       if (view.dataset.view === 'slide' && slideIdx < 0) { const n = visibleTurn(s); showSlide(s, Math.max(0, stepOfTurn(s, n)), true, true); }
       else if (view.dataset.view === 'normal') exitSlide(s);
       app.querySelector('.screen').focus({ preventScroll: true });
