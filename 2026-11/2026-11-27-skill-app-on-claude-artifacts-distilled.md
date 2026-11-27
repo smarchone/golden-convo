@@ -5,7 +5,6 @@ title: Hosting a skill-based conversation app on Claude artifacts
 why: "What it takes to run a skill-driven chat app as a Claude artifact: the page builds the prompt and calls Claude, so hidden prompt content is visible, the viewer pays, and outside viewers can't write the db."
 why_source: suggested
 format: distilled
-raw: 2026-11/2026-11-27-skill-app-on-claude-artifacts.md
 harness: claude-code
 harness_version: 2.1.332
 model: claude-opus-5-5
@@ -60,7 +59,7 @@ Decisions avoided, and why:
 
 Still open: whether viewers outside the organization get `sample` at all, whether browser storage persists in the installed desktop window and whether it's shared with the browser tab, and first-word latency through `sample`.
 
-*The turns below are a simplified conversation, written to drive the point. The verbatim session is the raw post, [2026-11-27-skill-app-on-claude-artifacts](#2026-11-27-skill-app-on-claude-artifacts).*
+*The turns below are a simplified conversation, written to drive the point.*
 
 ### 2 · **user:**
 
